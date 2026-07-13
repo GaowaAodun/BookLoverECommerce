@@ -1,0 +1,32 @@
+# Build
+bin/
+obj/
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+
+# macOS
+.DS_Store
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# Test Results
+TestResults/
+
+# Publish
+publish/
+artifacts/
+
+# Environment
+.env
+.env.*
+!.env.example
