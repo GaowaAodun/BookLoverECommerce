@@ -7,10 +7,17 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using BookLoverECommerce.Products.Api.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<
+        BearerSecuritySchemeTransformer>();
+});
 
 builder.Services.AddProductsApplication();
 
@@ -65,6 +72,17 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint(
+            "/openapi/v1.json",
+            "BookLoverECommerce Products API v1");
+
+        options.RoutePrefix = "swagger";
+    });
+
     using var scope = app.Services.CreateScope();
 
     var dbContext = scope.ServiceProvider
@@ -74,7 +92,6 @@ if (app.Environment.IsDevelopment())
 
     await ProductsDataSeeder.SeedAsync(dbContext);
 }
-
 app.MapHealthChecks("/health");
 
 app.UseHttpsRedirection();
