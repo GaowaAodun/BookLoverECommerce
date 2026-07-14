@@ -21,6 +21,9 @@
   </Folder>
   <Folder Name="/src/Services/Price/">
     <Project Path="src/Services/Price/BookLoverECommerce.Price.Api/BookLoverECommerce.Price.Api.csproj" />
+    <Project Path="src/Services/Price/BookLoverECommerce.Price.Application/BookLoverECommerce.Price.Application.csproj" />
+    <Project Path="src/Services/Price/BookLoverECommerce.Price.Domain/BookLoverECommerce.Price.Domain.csproj" />
+    <Project Path="src/Services/Price/BookLoverECommerce.Price.Infrastructure/BookLoverECommerce.Price.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/Services/Products/">
     <Project Path="src/Services/Products/BookLoverECommerce.Products.Api/BookLoverECommerce.Products.Api.csproj" />
