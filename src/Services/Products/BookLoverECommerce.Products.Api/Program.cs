@@ -1,13 +1,13 @@
+using System.Security.Claims;
+using System.Text;
+using BookLoverECommerce.Products.Api.OpenApi;
 using BookLoverECommerce.Products.Application;
 using BookLoverECommerce.Products.Infrastructure;
 using BookLoverECommerce.Products.Infrastructure.Persistence;
 using BookLoverECommerce.Products.Infrastructure.Persistence.Seed;
-using Microsoft.EntityFrameworkCore;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using BookLoverECommerce.Products.Api.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +28,8 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<ProductsDbContext>();
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-?? throw new InvalidOperationException(
-    "JWT issuer is not configured.");
+    ?? throw new InvalidOperationException(
+        "JWT issuer is not configured.");
 
 var jwtAudience = builder.Configuration["Jwt:Audience"]
     ?? throw new InvalidOperationException(
@@ -53,8 +53,9 @@ builder.Services
                 ValidAudience = jwtAudience,
 
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtKey)),
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtKey)),
 
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMinutes(1),
@@ -67,8 +68,6 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -92,6 +91,7 @@ if (app.Environment.IsDevelopment())
 
     await ProductsDataSeeder.SeedAsync(dbContext);
 }
+
 app.MapHealthChecks("/health");
 
 app.UseHttpsRedirection();

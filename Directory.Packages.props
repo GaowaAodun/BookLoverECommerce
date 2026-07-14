@@ -1,12 +1,10 @@
 <Project>
-
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-
   <ItemGroup>
-
+    
     <PackageVersion
       Include="Microsoft.Extensions.Identity.Stores"
       Version="10.0.9" />
@@ -63,3 +61,5 @@
   </ItemGroup>
 
 </Project>
+
+
