@@ -49,6 +49,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+
 builder.Services
     .AddHealthChecks()
     .AddDbContextCheck<CartDbContext>();
@@ -58,9 +59,18 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint(
+            "/openapi/v1.json",
+            "BookLoverECommerce Cart API v1");
+
+        options.RoutePrefix = "swagger";
+    });
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

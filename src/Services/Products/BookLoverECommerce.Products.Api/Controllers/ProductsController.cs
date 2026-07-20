@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookLoverECommerce.Products.Api.Controllers;
 
 [ApiController]
-[Route("products")]
+[Route("api/products")]
 [Authorize]
 public sealed class ProductsController : ControllerBase
 {
