@@ -1,8 +1,10 @@
 <Solution>
   <Folder Name="/src/" />
+
   <Folder Name="/src/ApiGateway/">
     <Project Path="src/ApiGateway/BookLoverECommerce.ApiGateway/BookLoverECommerce.ApiGateway.csproj" />
   </Folder>
+  
   <Folder Name="/src/BuildingBlocks/">
     <Project Path="src/BuildingBlocks/BookLoverECommerce.Shared/BookLoverECommerce.Shared.csproj" />
   </Folder>
