@@ -8,7 +8,7 @@ namespace BookLoverECommerce.Cart.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("cart/{userId}")]
+[Route("api/cart/{userId}")]
 public class CartController : ControllerBase
 {
     private readonly ICartService _cartService;

@@ -62,7 +62,7 @@ public sealed class ProductPricesController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("product/{productId:guid}")]
+    [HttpGet("api/product/{productId:guid}")]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status200OK)]
