@@ -1,15 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>14b74b70-2545-4f9a-b334-7bd9aad37122</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" />
+    <PackageReference Include="MassTransit.RabbitMQ" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.OpenApi" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookLoverECommerce.Price.Application\BookLoverECommerce.Price.Application.csproj" />
+    <ProjectReference Include="..\BookLoverECommerce.Price.Infrastructure\BookLoverECommerce.Price.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\BookLoverECommerce.Contracts\BookLoverECommerce.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\BookLoverECommerce.Shared\BookLoverECommerce.Shared.csproj" />
   </ItemGroup>
 
 </Project>

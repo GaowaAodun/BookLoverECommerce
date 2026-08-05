@@ -1,10 +1,13 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/src/BuildingBlocks/">
-    <Project Path="src/BuildingBlocks/BookLoverECommerce.Shared/BookLoverECommerce.Shared.csproj" />
+
+  <Folder Name="/src/ApiGateway/">
+    <Project Path="src/ApiGateway/BookLoverECommerce.ApiGateway/BookLoverECommerce.ApiGateway.csproj" />
   </Folder>
-  <Folder Name="/src/Gateway/">
-    <Project Path="src/Gateway/BookLoverECommerce.ApiGateway/BookLoverECommerce.ApiGateway.csproj" />
+  
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/BookLoverECommerce.Contracts/BookLoverECommerce.Contracts.csproj" />
+    <Project Path="src/BuildingBlocks/BookLoverECommerce.Shared/BookLoverECommerce.Shared.csproj" />
   </Folder>
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/Auth/">
@@ -21,6 +24,9 @@
   </Folder>
   <Folder Name="/src/Services/Price/">
     <Project Path="src/Services/Price/BookLoverECommerce.Price.Api/BookLoverECommerce.Price.Api.csproj" />
+    <Project Path="src/Services/Price/BookLoverECommerce.Price.Application/BookLoverECommerce.Price.Application.csproj" />
+    <Project Path="src/Services/Price/BookLoverECommerce.Price.Domain/BookLoverECommerce.Price.Domain.csproj" />
+    <Project Path="src/Services/Price/BookLoverECommerce.Price.Infrastructure/BookLoverECommerce.Price.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/Services/Products/">
     <Project Path="src/Services/Products/BookLoverECommerce.Products.Api/BookLoverECommerce.Products.Api.csproj" />

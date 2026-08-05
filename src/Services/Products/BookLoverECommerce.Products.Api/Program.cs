@@ -1,21 +1,139 @@
+using System.Security.Claims;
+using System.Text;
+using BookLoverECommerce.Products.Api.OpenApi;
+using BookLoverECommerce.Products.Application;
+using BookLoverECommerce.Products.Infrastructure;
+using BookLoverECommerce.Products.Infrastructure.Persistence;
+using BookLoverECommerce.Products.Infrastructure.Persistence.Seed;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using BookLoverECommerce.Shared.Messaging;
+using MassTransit;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<
+        BearerSecuritySchemeTransformer>();
+});
+
+builder.Services.AddProductsApplication();
+
+builder.Services.AddProductsInfrastructure(
+    builder.Configuration);
+
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ProductsDbContext>();
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException(
+        "JWT issuer is not configured.");
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException(
+        "JWT audience is not configured.");
+
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException(
+        "JWT key is not configured.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtIssuer,
+
+                ValidateAudience = true,
+                ValidAudience = jwtAudience,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtKey)),
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(1),
+
+                NameClaimType = ClaimTypes.NameIdentifier,
+                RoleClaimType = ClaimTypes.Role
+            };
+    });
+
+builder.Services.AddAuthorization();
+
+// RabbitMQ Configuration
+var rabbitMqOptions = builder.Configuration
+    .GetSection(RabbitMqOptions.SectionName)
+    .Get<RabbitMqOptions>()
+    ?? throw new InvalidOperationException(
+        "RabbitMQ configuration is missing.");
+
+builder.Services.AddMassTransit(configuration =>
+{
+    configuration.SetKebabCaseEndpointNameFormatter();
+
+    configuration.UsingRabbitMq((context, rabbitMq) =>
+    {
+        rabbitMq.Host(
+            rabbitMqOptions.Host,
+            rabbitMqOptions.Port,
+            rabbitMqOptions.VirtualHost,
+            host =>
+            {
+                host.Username(rabbitMqOptions.Username);
+                host.Password(rabbitMqOptions.Password);
+            });
+
+        rabbitMq.ConfigureEndpoints(context);
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() ||
+    app.Environment.IsEnvironment("Docker"))
 {
     app.MapOpenApi();
-}
-app.MapHealthChecks("/health");
-app.UseHttpsRedirection();
 
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint(
+            "/openapi/v1.json",
+            "BookLoverECommerce Products API v1");
+
+        options.RoutePrefix = "swagger";
+    });
+}
+
+var applyMigrations =
+    builder.Configuration.GetValue<bool>(
+        "Database:ApplyMigrationsOnStartup");
+
+if (applyMigrations)
+{
+    using var scope = app.Services.CreateScope();
+
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<ProductsDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+
+    await ProductsDataSeeder.SeedAsync(dbContext);
+}
+
+app.MapHealthChecks("/health");
+
+// app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
