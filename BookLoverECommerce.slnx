@@ -6,6 +6,7 @@
   </Folder>
   
   <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/BookLoverECommerce.Contracts/BookLoverECommerce.Contracts.csproj" />
     <Project Path="src/BuildingBlocks/BookLoverECommerce.Shared/BookLoverECommerce.Shared.csproj" />
   </Folder>
   <Folder Name="/src/Services/" />

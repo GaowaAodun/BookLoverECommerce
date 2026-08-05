@@ -1,0 +1,395 @@
+name: booklover-ecommerce
+
+services:
+  # =========================================================
+  # RABBITMQ
+  # =========================================================
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: booklover-rabbitmq
+    hostname: booklover-rabbitmq
+    restart: unless-stopped
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # AUTH DATABASE
+  # =========================================================
+  auth-db:
+    image: postgres:18
+    container_name: booklover-auth-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: booklover_auth
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - auth_data:/var/lib/postgresql
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U auth_user -d booklover_auth" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # PRODUCTS DATABASE
+  # =========================================================
+  products-db:
+    image: postgres:18
+    container_name: booklover-products-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: booklover_products
+      POSTGRES_USER: products_user
+      POSTGRES_PASSWORD: ${PRODUCTS_DB_PASSWORD}
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - products_data:/var/lib/postgresql
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U products_user -d booklover_products" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # CART DATABASE
+  # =========================================================
+  cart-db:
+    image: postgres:18
+    container_name: booklover-cart-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: booklover_cart
+      POSTGRES_USER: cart_user
+      POSTGRES_PASSWORD: ${CART_DB_PASSWORD}
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - cart_data:/var/lib/postgresql
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U cart_user -d booklover_cart" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # PRICE DATABASE
+  # =========================================================
+  price-db:
+    image: postgres:18
+    container_name: booklover-price-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: booklover_price
+      POSTGRES_USER: price_user
+      POSTGRES_PASSWORD: ${PRICE_DB_PASSWORD}
+
+    ports:
+      - "5435:5432"
+
+    volumes:
+      - price_data:/var/lib/postgresql
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U price_user -d booklover_price" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # AUTH API
+  # =========================================================
+  auth-api:
+    container_name: booklover-auth-api
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Services/Auth/BookLoverECommerce.Auth.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__AuthDatabase: >-
+        Host=auth-db; Port=5432; Database=booklover_auth; Username=auth_user; Password=${AUTH_DB_PASSWORD}
+
+      Database__ApplyMigrationsOnStartup: "true"
+
+      Jwt__Issuer: BookLoverECommerce.Auth
+      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Key: ${JWT_KEY}
+
+      AdminUser__Email: admin@booklover.com
+      AdminUser__Password: ${ADMIN_USER_PASSWORD}
+      AdminUser__FullName: System Administrator
+      AdminUser__Username: admin
+
+    ports:
+      - "5001:8080"
+
+    depends_on:
+      auth-db:
+        condition: service_healthy
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # PRODUCTS API
+  # =========================================================
+  products-api:
+    container_name: booklover-products-api
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Services/Products/BookLoverECommerce.Products.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__ProductsDatabase: >-
+        Host=products-db; Port=5432; Database=booklover_products; Username=products_user; Password=${PRODUCTS_DB_PASSWORD}
+
+      Database__ApplyMigrationsOnStartup: "true"
+
+      Jwt__Issuer: BookLoverECommerce.Auth
+      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Key: ${JWT_KEY}
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__VirtualHost: /
+      RabbitMq__Username: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+
+    ports:
+      - "5002:8080"
+
+    depends_on:
+      products-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # PRICE API
+  # =========================================================
+  price-api:
+    container_name: booklover-price-api
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Services/Price/BookLoverECommerce.Price.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__PriceDatabase: >-
+        Host=price-db; Port=5432; Database=booklover_price; Username=price_user; Password=${PRICE_DB_PASSWORD}
+
+      Database__ApplyMigrationsOnStartup: "true"
+
+      Jwt__Issuer: BookLoverECommerce.Auth
+      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Key: ${JWT_KEY}
+
+      Services__ProductsApi: http://products-api:8080
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__VirtualHost: /
+      RabbitMq__Username: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+
+    ports:
+      - "5004:8080"
+
+    depends_on:
+      price-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      products-api:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # CART API
+  # =========================================================
+  cart-api:
+    container_name: booklover-cart-api
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Services/Cart/BookLoverECommerce.Cart.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__CartDatabase: >-
+        Host=cart-db; Port=5432; Database=booklover_cart; Username=cart_user; Password=${CART_DB_PASSWORD}
+
+      Database__ApplyMigrationsOnStartup: "true"
+
+      Jwt__Issuer: BookLoverECommerce.Auth
+      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Key: ${JWT_KEY}
+
+      Services__ProductsApi: http://products-api:8080
+      Services__PriceApi: http://price-api:8080
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__VirtualHost: /
+      RabbitMq__Username: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+
+    ports:
+      - "5003:8080"
+
+    depends_on:
+      cart-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      products-api:
+        condition: service_started
+      price-api:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
+  # =========================================================
+  # API GATEWAY
+  # =========================================================
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/BookLoverECommerce.ApiGateway/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      Jwt__Issuer: BookLoverECommerce.Auth
+      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Key: ${JWT_KEY}
+
+      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: >-
+        http://auth-api:8080/
+
+      ReverseProxy__Clusters__products-cluster__Destinations__destination1__Address: >-
+        http://products-api:8080/
+
+      ReverseProxy__Clusters__price-cluster__Destinations__destination1__Address: >-
+        http://price-api:8080/
+
+      ReverseProxy__Clusters__cart-cluster__Destinations__destination1__Address: >-
+        http://cart-api:8080/
+
+    ports:
+      - "5092:8080"
+
+    depends_on:
+      auth-api:
+        condition: service_started
+      products-api:
+        condition: service_started
+      price-api:
+        condition: service_started
+      cart-api:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
+# =========================================================
+# PERSISTENT VOLUMES
+# =========================================================
+volumes:
+  rabbitmq_data:
+    name: booklover-rabbitmq-data
+
+  auth_data:
+    name: booklover-auth-data
+
+  products_data:
+    name: booklover-products-data
+
+  cart_data:
+    name: booklover-cart-data
+
+  price_data:
+    name: booklover-price-data
+
+# =========================================================
+# NETWORK
+# =========================================================
+networks:
+  booklover-network:
+    name: booklover-network
+    driver: bridge

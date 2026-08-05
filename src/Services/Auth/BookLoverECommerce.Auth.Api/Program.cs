@@ -4,6 +4,7 @@ using BookLoverECommerce.Auth.Application.Configuration;
 using BookLoverECommerce.Auth.Infrastructure;
 using BookLoverECommerce.Auth.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,7 +69,8 @@ builder.Services
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() ||
+    app.Environment.IsEnvironment("Docker"))
 {
     app.MapOpenApi();
 
@@ -82,6 +84,28 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+var applyMigrations =
+    builder.Configuration.GetValue<bool>(
+        "Database:ApplyMigrationsOnStartup");
+
+if (applyMigrations)
+{
+    using var scope = app.Services.CreateScope();
+
+    var services = scope.ServiceProvider;
+
+    var dbContext = services
+        .GetRequiredService<AuthDbContext>();
+
+    // First create/update Identity tables.
+    await dbContext.Database.MigrateAsync();
+
+    // Only seed after the tables exist.
+    await AuthSeeder.SeedAsync(
+        services,
+        builder.Configuration);
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -89,9 +113,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
-
-await AuthSeeder.SeedAsync(
-    app.Services,
-    app.Configuration);
 
 app.Run();

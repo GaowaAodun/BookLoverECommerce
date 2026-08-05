@@ -6,18 +6,26 @@ using BookLoverECommerce.Products.Application.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using BookLoverECommerce.Contracts.Products;
+using MassTransit;
+
 namespace BookLoverECommerce.Products.Api.Controllers;
 
 [ApiController]
-[Route("api/products")]
+[Route("/api/products")]
 [Authorize]
 public sealed class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ProductsController(IProductService productService)
+    
+    public ProductsController(
+        IProductService productService,
+        IPublishEndpoint publishEndpoint)
     {
         _productService = productService;
+        _publishEndpoint = publishEndpoint;
     }
 
     // GET /products
@@ -88,6 +96,16 @@ public sealed class ProductsController : ControllerBase
             var product = await _productService.CreateAsync(
                 command,
                 cancellationToken);
+
+            // publish from the Products controller immediately after product creation
+            await _publishEndpoint.Publish(
+                new ProductCreated(
+                    product.Id,
+                    product.Name,
+                    product.Sku,
+                    product.Price,
+                    DateTimeOffset.UtcNow),
+                    cancellationToken);
 
             return Created(
                 $"/products/{product.Id}",
