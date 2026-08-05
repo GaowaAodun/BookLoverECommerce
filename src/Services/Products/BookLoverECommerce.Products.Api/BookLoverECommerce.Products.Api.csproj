@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" />
+    <PackageReference Include="MassTransit.RabbitMQ" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 
@@ -25,6 +27,8 @@
   <ItemGroup>
     <ProjectReference Include="..\BookLoverECommerce.Products.Application\BookLoverECommerce.Products.Application.csproj" />
     <ProjectReference Include="..\BookLoverECommerce.Products.Infrastructure\BookLoverECommerce.Products.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\BookLoverECommerce.Contracts\BookLoverECommerce.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\BookLoverECommerce.Shared\BookLoverECommerce.Shared.csproj" />
   </ItemGroup>
 
 </Project>

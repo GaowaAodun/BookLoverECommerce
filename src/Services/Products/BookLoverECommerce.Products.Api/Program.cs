@@ -8,6 +8,8 @@ using BookLoverECommerce.Products.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using BookLoverECommerce.Shared.Messaging;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,9 +69,37 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// RabbitMQ Configuration
+var rabbitMqOptions = builder.Configuration
+    .GetSection(RabbitMqOptions.SectionName)
+    .Get<RabbitMqOptions>()
+    ?? throw new InvalidOperationException(
+        "RabbitMQ configuration is missing.");
+
+builder.Services.AddMassTransit(configuration =>
+{
+    configuration.SetKebabCaseEndpointNameFormatter();
+
+    configuration.UsingRabbitMq((context, rabbitMq) =>
+    {
+        rabbitMq.Host(
+            rabbitMqOptions.Host,
+            rabbitMqOptions.Port,
+            rabbitMqOptions.VirtualHost,
+            host =>
+            {
+                host.Username(rabbitMqOptions.Username);
+                host.Password(rabbitMqOptions.Password);
+            });
+
+        rabbitMq.ConfigureEndpoints(context);
+    });
+});
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() ||
+    app.Environment.IsEnvironment("Docker"))
 {
     app.MapOpenApi();
 
@@ -81,7 +111,14 @@ if (app.Environment.IsDevelopment())
 
         options.RoutePrefix = "swagger";
     });
+}
 
+var applyMigrations =
+    builder.Configuration.GetValue<bool>(
+        "Database:ApplyMigrationsOnStartup");
+
+if (applyMigrations)
+{
     using var scope = app.Services.CreateScope();
 
     var dbContext = scope.ServiceProvider

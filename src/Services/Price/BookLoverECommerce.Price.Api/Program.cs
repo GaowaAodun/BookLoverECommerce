@@ -8,6 +8,10 @@ using System.Security.Claims;
 using System.Text;
 using BookLoverECommerce.Price.Api.OpenApi;
 
+using BookLoverECommerce.Price.Api.Consumers;
+using BookLoverECommerce.Shared.Messaging;
+using MassTransit;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -66,13 +70,55 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// RabbitMQ Configuration
+var rabbitMqOptions = builder.Configuration
+    .GetSection(RabbitMqOptions.SectionName)
+    .Get<RabbitMqOptions>()
+    ?? throw new InvalidOperationException(
+        "RabbitMQ configuration is missing.");
+
+builder.Services.AddMassTransit(configuration =>
+{
+    configuration.SetKebabCaseEndpointNameFormatter();
+
+    configuration.AddConsumer<ProductCreatedConsumer>();
+
+    configuration.UsingRabbitMq((context, rabbitMq) =>
+    {
+        rabbitMq.Host(
+            rabbitMqOptions.Host,
+            rabbitMqOptions.Port,
+            rabbitMqOptions.VirtualHost,
+            host =>
+            {
+                host.Username(rabbitMqOptions.Username);
+                host.Password(rabbitMqOptions.Password);
+            });
+
+        rabbitMq.ReceiveEndpoint(
+            "price-product-created",
+            endpoint =>
+            {
+                endpoint.ConfigureConsumer<ProductCreatedConsumer>(
+                    context);
+
+                endpoint.UseMessageRetry(retry =>
+                {
+                    retry.Interval(
+                        3,
+                        TimeSpan.FromSeconds(3));
+                });
+            });
+    });
+});
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() ||
+    app.Environment.IsEnvironment("Docker"))
 {
     app.MapOpenApi();
 
-    // To test with swagger
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint(
@@ -81,15 +127,23 @@ if (app.Environment.IsDevelopment())
 
         options.RoutePrefix = "swagger";
     });
+}
 
+var applyMigrations =
+    builder.Configuration.GetValue<bool>(
+        "Database:ApplyMigrationsOnStartup");
+
+if (applyMigrations)
+{
     using var scope = app.Services.CreateScope();
 
     var dbContext = scope.ServiceProvider
         .GetRequiredService<PriceDbContext>();
 
     await dbContext.Database.MigrateAsync();
-}
 
+    // await PriceDataSeeder.SeedAsync(dbContext);
+}
 
 app.MapHealthChecks("/health");
 

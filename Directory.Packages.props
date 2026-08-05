@@ -59,5 +59,8 @@
     <PackageVersion
       Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore"
       Version="10.0.9" />
+
+    <PackageVersion Include="MassTransit" Version="8.5.7" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.5.7" />
   </ItemGroup>
 </Project>
