@@ -27,6 +27,16 @@ public sealed class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Product>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Products
+            .AsNoTracking()
+            .OrderByDescending(product => product.CreatedAtUtc)
+            .ThenBy(product => product.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Product>> GetByIdsAsync(
         IReadOnlyCollection<int> productIds,
         CancellationToken cancellationToken = default)
@@ -40,10 +50,8 @@ public sealed class ProductRepository : IProductRepository
             .AsNoTracking()
             .Where(product =>
                 productIds.Contains(product.Id) &&
-                (
-                product.Status == ProductStatus.Published ||
-                product.Status == ProductStatus.OutOfStock
-                ))
+                (product.Status == ProductStatus.Published ||
+                 product.Status == ProductStatus.OutOfStock))
             .OrderBy(product => product.Id)
             .ToListAsync(cancellationToken);
     }
@@ -62,9 +70,10 @@ public sealed class ProductRepository : IProductRepository
         string sku,
         CancellationToken cancellationToken = default)
     {
-        return _dbContext.Products.AnyAsync(
-            product => product.Sku == sku,
-            cancellationToken);
+        return _dbContext.Products
+            .AnyAsync(
+                product => product.Sku == sku,
+                cancellationToken);
     }
 
     public async Task AddAsync(
@@ -81,9 +90,9 @@ public sealed class ProductRepository : IProductRepository
         _dbContext.Products.Remove(product);
     }
 
-    public Task SaveChangesAsync(
+    public async Task SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
-        return _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

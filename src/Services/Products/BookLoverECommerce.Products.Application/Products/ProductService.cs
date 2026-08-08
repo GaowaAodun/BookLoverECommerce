@@ -2,6 +2,7 @@ using BookLoverECommerce.Products.Application.Abstractions;
 using BookLoverECommerce.Products.Application.DTOs;
 using BookLoverECommerce.Products.Application.Exceptions;
 using BookLoverECommerce.Products.Domain.Entities;
+using BookLoverECommerce.Products.Domain.Enums;
 
 namespace BookLoverECommerce.Products.Application.Products;
 
@@ -50,6 +51,8 @@ public sealed class ProductService : IProductService
         CreateProductCommand command,
         CancellationToken cancellationToken = default)
     {
+        ValidateProductType(command.ProductType);
+
         var categoryExists = await _categoryRepository.ExistsAsync(
             command.CategoryId,
             cancellationToken);
@@ -91,6 +94,69 @@ public sealed class ProductService : IProductService
         return MapToDto(product);
     }
 
+    public async Task<IReadOnlyList<ProductDto>> GetAllForAdminAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var products = await _productRepository.GetAllAsync(cancellationToken);
+        return products.Select(MapToDto).ToArray();
+    }
+
+    public async Task<ProductDto> GetByIdAsync(
+        int productId,
+        CancellationToken cancellationToken = default)
+    {
+        var product = await _productRepository.GetByIdAsync(productId, cancellationToken)
+            ?? throw new ProductNotFoundException(productId);
+        return MapToDto(product);
+    }
+
+    public async Task<ProductDto> UpdateAsync(
+        int productId,
+        UpdateProductCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateProductType(command.ProductType);
+
+        var product = await _productRepository.GetByIdAsync(
+            productId,
+            cancellationToken)
+            ?? throw new ProductNotFoundException(productId);
+
+        var categoryExists = await _categoryRepository.ExistsAsync(
+            command.CategoryId,
+            cancellationToken);
+
+        if (!categoryExists)
+        {
+            throw new CategoryNotFoundException(command.CategoryId);
+        }
+
+        product.UpdateDetails(
+            command.Name,
+            command.Description,
+            command.Price,
+            command.CategoryId,
+            command.ProductType,
+            command.Brand,
+            command.ThumbnailUrl);
+        product.UpdateStock(command.StockQuantity);
+
+        await _productRepository.SaveChangesAsync(cancellationToken);
+
+        return MapToDto(product);
+    }
+
+    private static void ValidateProductType(
+        ProductType productType)
+    {
+        if (!Enum.IsDefined(productType))
+        {
+            throw new ArgumentException(
+                "A valid product type is required.",
+                nameof(productType));
+        }
+    }
+
     public async Task DeleteAsync(
         int productId,
         CancellationToken cancellationToken = default)
@@ -110,8 +176,8 @@ public sealed class ProductService : IProductService
     }
 
     public async Task ArchiveAsync(
-        int productId,
-        CancellationToken cancellationToken = default)
+    int productId,
+    CancellationToken cancellationToken = default)
     {
         var product = await _productRepository.GetByIdAsync(
             productId,
@@ -127,6 +193,23 @@ public sealed class ProductService : IProductService
         await _productRepository.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task UnarchiveAsync(
+        int productId,
+        CancellationToken cancellationToken = default)
+    {
+        var product = await _productRepository.GetByIdAsync(
+            productId,
+            cancellationToken);
+
+        if (product is null)
+        {
+            throw new ProductNotFoundException(productId);
+        }
+
+        product.Unarchive();
+
+        await _productRepository.SaveChangesAsync(cancellationToken);
+    }
     private static ProductDto MapToDto(Product product)
     {
         return new ProductDto(

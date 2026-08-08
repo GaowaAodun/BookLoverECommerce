@@ -1,4 +1,5 @@
 using BookLoverECommerce.Products.Application.Abstractions;
+using BookLoverECommerce.Products.Domain.Entities;
 using BookLoverECommerce.Products.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,5 +23,16 @@ public sealed class CategoryRepository : ICategoryRepository
                 category.Id == categoryId &&
                 category.IsActive,
             cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Category>> GetActiveAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Categories
+            .AsNoTracking()
+            .Where(category => category.IsActive)
+            .OrderBy(category => category.DisplayOrder)
+            .ThenBy(category => category.Name)
+            .ToListAsync(cancellationToken);
     }
 }

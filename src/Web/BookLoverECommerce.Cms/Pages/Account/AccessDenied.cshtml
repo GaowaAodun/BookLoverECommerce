@@ -1,0 +1,17 @@
+@page
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="text-center mt-5">
+    <h1 class="display-6 text-danger">Access denied</h1>
+
+    <p class="lead">
+        Your account does not have permission to access this page.
+    </p>
+
+    <a asp-page="/Account/Login"
+       class="btn btn-primary">
+        Return to login
+    </a>
+</div>

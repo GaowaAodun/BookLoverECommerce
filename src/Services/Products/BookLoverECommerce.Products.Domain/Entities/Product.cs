@@ -179,6 +179,18 @@ public class Product
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
+    public void Unarchive()
+    {
+        if (Status != ProductStatus.Archived)
+        {
+            throw new InvalidOperationException(
+                "Only an archived product can be unarchived.");
+        }
+
+        Status = ProductStatus.Draft;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
     private void SetName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

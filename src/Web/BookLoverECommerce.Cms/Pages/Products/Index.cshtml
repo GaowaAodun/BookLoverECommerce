@@ -1,0 +1,301 @@
+@page
+@model BookLoverECommerce.Cms.Pages.Products.IndexModel
+@using BookLoverECommerce.Cms.Models.Products
+
+@{
+    ViewData["Title"] = "Products";
+
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<div class="d-flex justify-content-between
+    align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-1">Products</h1>
+
+        <p class="text-muted mb-0">
+            @if (isAdmin)
+            {
+                <text>
+                    Manage the products available in the store.
+                </text>
+            }
+            else
+            {
+                <text>
+                    View the products available in the store.
+                </text>
+            }
+        </p>
+    </div>
+
+    @if (isAdmin)
+    {
+        <a asp-page="/Products/Create" class="btn btn-primary">
+            Add product
+        </a>
+    }
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.SuccessMessage
+
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
+@if (Model.Products.Count == 0 &&
+     string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <h2 class="h5">No products found</h2>
+
+            @if (isAdmin)
+            {
+                <p class="text-muted">
+                    Create your first product to begin managing the
+                    catalogue.
+                </p>
+
+                <a asp-page="/Products/Create" class="btn btn-primary">
+                    Add product
+                </a>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    There are currently no published or out-of-stock
+                    products available.
+                </p>
+            }
+        </div>
+    </div>
+}
+else if (Model.Products.Count > 0)
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Stock</th>
+                        <th>Status</th>
+                        <th>Created</th>
+
+                        @if (isAdmin)
+                        {
+                            <th class="text-end">Actions</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        product.ThumbnailUrl))
+                                    {
+                                        <img src="@product.ThumbnailUrl" alt="@product.Name" width="48" height="48"
+                                             class="rounded border" style="object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded border bg-light
+                                            d-flex align-items-center
+                                            justify-content-center
+                                            text-muted" style="width: 48px;
+                                            height: 48px;">
+                                            N/A
+                                        </div>
+                                    }
+
+                                    <div>
+                                        <div class="fw-semibold">
+                                            @product.Name
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            product.Brand))
+                                        {
+                                            <small class="text-muted">
+                                                @product.Brand
+                                            </small>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <code>@product.Sku</code>
+                            </td>
+
+                            <td>
+                                @GetProductTypeLabel(product.ProductType)
+                            </td>
+
+                            <td>
+                                #@product.CategoryId
+                            </td>
+
+                            <td class="text-end">
+                                @product.Price.ToString("C")
+                            </td>
+
+                            <td class="text-end">
+                                @product.StockQuantity
+                            </td>
+
+                            <td>
+                                @{
+                                    var statusClass =
+                                        GetStatusBadgeClass(product.Status);
+                                }
+
+                                <span class="badge @statusClass">
+                                    @GetStatusLabel(product.Status)
+                                </span>
+                            </td>
+
+                            <td>
+                                @product.CreatedAtUtc
+                                .ToLocalTime()
+                                .ToString("yyyy-MM-dd")
+                            </td>
+
+                            @if (isAdmin)
+                            {
+                                <td class="text-end">
+                                    <div class="d-flex flex-wrap gap-2
+                                        justify-content-end">
+                                        @if (product.Status !=
+                                             ProductStatus.Archived)
+                                        {
+                                            <a asp-page="/Products/Edit" asp-route-id="@product.Id" class="btn btn-sm
+                                                btn-outline-primary">
+                                                Edit
+                                            </a>
+                                        }
+
+                                        @if (product.Status ==
+                                             ProductStatus.Draft)
+                                        {
+                                            <form method="post" asp-page-handler="Publish" asp-route-id="@product.Id" onsubmit="return confirm(
+                                            'Publish this product?');">
+                                                <button type="submit" class="btn btn-sm
+                                                    btn-success">
+                                                    Publish
+                                                </button>
+                                            </form>
+                                        }
+                                        
+                                        @if (product.Status == ProductStatus.Archived)
+                                        {
+                                            <form method="post" asp-page-handler="Unarchive" asp-route-id="@product.Id" onsubmit="return confirm(
+                                                'Restore this product to draft?');">
+                                                <button type="submit" class="btn btn-sm
+                                                    btn-outline-success">
+                                                    Restore
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Archive" asp-route-id="@product.Id" onsubmit="return confirm(
+                                                'Archive this product?');">
+                                                <button type="submit" class="btn btn-sm
+                                                    btn-outline-warning">
+                                                    Archive
+                                                </button>
+                                            </form>
+                                        }
+
+                                        <form method="post" asp-page-handler="Delete" asp-route-id="@product.Id" onsubmit="return confirm(
+                                            'Delete this product? This action cannot be undone.');">
+                                            <button type="submit" class="btn btn-sm
+                                                btn-outline-danger">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@functions
+{
+    private static string GetProductTypeLabel(
+        ProductType productType)
+    {
+        return productType switch
+        {
+            ProductType.PrintedBook =>
+                "Printed Book",
+
+            ProductType.HomeAndKitchen =>
+                "Home & Kitchen",
+
+            _ =>
+                productType.ToString()
+        };
+    }
+
+    private static string GetStatusLabel(
+        ProductStatus status)
+    {
+        return status switch
+        {
+            ProductStatus.OutOfStock =>
+                "Out of Stock",
+
+            _ =>
+                status.ToString()
+        };
+    }
+
+    private static string GetStatusBadgeClass(
+        ProductStatus status)
+    {
+        return status switch
+        {
+            ProductStatus.Draft =>
+                "text-bg-secondary",
+
+            ProductStatus.Published =>
+                "text-bg-success",
+
+            ProductStatus.OutOfStock =>
+                "text-bg-warning",
+
+            ProductStatus.Archived =>
+                "text-bg-dark",
+
+            _ =>
+                "text-bg-secondary"
+        };
+    }
+}
