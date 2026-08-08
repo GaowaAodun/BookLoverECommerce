@@ -1,0 +1,74 @@
+@page
+@model BookLoverECommerce.Cms.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Administrator Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3 text-center mb-2">
+                    BookLover CMS
+                </h1>
+
+                <p class="text-muted text-center mb-4">
+                    Sign in with your administrator account.
+                </p>
+
+                @if (!string.IsNullOrWhiteSpace(
+                    Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.UsernameOrEmail"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Input.UsernameOrEmail"
+                               class="form-control"
+                               autocomplete="username"
+                               autofocus />
+
+                        <span asp-validation-for=
+                                  "Input.UsernameOrEmail"
+                              class="text-danger">
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Password"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Input.Password"
+                               class="form-control"
+                               autocomplete="current-password" />
+
+                        <span asp-validation-for="Input.Password"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Sign in
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

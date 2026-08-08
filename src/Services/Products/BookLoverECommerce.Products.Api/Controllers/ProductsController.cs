@@ -13,13 +13,12 @@ namespace BookLoverECommerce.Products.Api.Controllers;
 
 [ApiController]
 [Route("/api/products")]
-[Authorize]
 public sealed class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    
+
     public ProductsController(
         IProductService productService,
         IPublishEndpoint publishEndpoint)
@@ -31,6 +30,7 @@ public sealed class ProductsController : ControllerBase
     // GET /products
     // GET /products?productIds=1,2,3
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType<IReadOnlyList<ProductDto>>(
         StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,6 +55,59 @@ public sealed class ProductsController : ControllerBase
             cancellationToken);
 
         return Ok(products);
+    }
+
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAllForAdmin(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _productService.GetAllForAdminAsync(cancellationToken));
+    }
+
+    [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ProductDto>> GetById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await _productService.GetByIdAsync(id, cancellationToken));
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new { message = exception.Message });
+        }
+    }
+
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ProductDto>> UpdateProduct(
+        int id,
+        [FromBody] UpdateProductRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var command = new UpdateProductCommand(
+                request.Name, request.Description, request.Price,
+                request.StockQuantity, request.CategoryId, request.ProductType,
+                request.Brand, request.ThumbnailUrl);
+            return Ok(await _productService.UpdateAsync(id, command, cancellationToken));
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new { message = exception.Message });
+        }
+        catch (CategoryNotFoundException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     // POST /products
@@ -108,7 +161,7 @@ public sealed class ProductsController : ControllerBase
                     cancellationToken);
 
             return Created(
-                $"/products/{product.Id}",
+                $"/api/products/{product.Id}",
                 product);
         }
         catch (DuplicateSkuException exception)
@@ -184,6 +237,42 @@ public sealed class ProductsController : ControllerBase
         catch (ProductNotFoundException exception)
         {
             return NotFound(new
+            {
+                message = exception.Message
+            });
+        }
+    }
+
+    // PATCH /api/products/{id}/unarchive
+    [HttpPatch("{id:int}/unarchive")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UnarchiveProduct(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _productService.UnarchiveAsync(
+                id,
+                cancellationToken);
+
+            return NoContent();
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new
+            {
+                message = exception.Message
+            });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new
             {
                 message = exception.Message
             });

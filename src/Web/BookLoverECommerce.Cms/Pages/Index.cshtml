@@ -1,0 +1,71 @@
+﻿@page
+@model BookLoverECommerce.Cms.Pages.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="mb-4">
+    <h1 class="h2">Dashboard</h1>
+
+    <p class="text-muted">
+        Welcome back, @Model.AdministratorName.
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 card-title">
+                    Products
+                </h2>
+
+                <p class="card-text text-muted">
+                    Create, edit, publish, archive, and manage
+                    products.
+                </p>
+
+                <a asp-page="/Products/Index" class="btn btn-primary">
+                    Manage products
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 card-title">
+                    Categories
+                </h2>
+
+                <p class="card-text text-muted">
+                    Create and maintain product categories.
+                </p>
+
+                <a asp-page="/Categories/Index" class="btn btn-primary">
+                    Manage categories
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 card-title">
+                    Prices
+                </h2>
+
+                <p class="card-text text-muted">
+                    Manage prices, currencies, and effective
+                    periods.
+                </p>
+
+                <a asp-page="/Prices/Index" class="btn btn-primary">
+                    Manage prices
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

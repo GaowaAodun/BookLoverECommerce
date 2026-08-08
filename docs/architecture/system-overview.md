@@ -39,7 +39,7 @@ The project is initially developed as a university course project and is designe
 ```
 BookLoverECommerce
 │
-├── Gateway
+├── ApiGateway
 ├── BuildingBlocks
 ├── Services
 │

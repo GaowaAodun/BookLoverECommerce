@@ -26,6 +26,7 @@ public sealed class CreateProductRequest
     [Range(1, int.MaxValue)]
     public int CategoryId { get; init; }
 
+    [EnumDataType(typeof(ProductType))]
     public ProductType ProductType { get; init; }
 
     [StringLength(100)]
@@ -33,4 +34,5 @@ public sealed class CreateProductRequest
 
     [StringLength(500)]
     public string? ThumbnailUrl { get; init; }
+
 }
