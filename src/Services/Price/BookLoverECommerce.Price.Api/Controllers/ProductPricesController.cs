@@ -62,7 +62,7 @@ public sealed class ProductPricesController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("api/price/{productId:guid}")]
+    [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status200OK)]
@@ -89,13 +89,15 @@ public sealed class ProductPricesController : ControllerBase
         }
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ProductPriceDto>> Create(
         CreateProductPriceRequest request,
         CancellationToken cancellationToken)
@@ -139,13 +141,15 @@ public sealed class ProductPricesController : ControllerBase
         }
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ProductPriceDto>> Update(
         Guid id,
         UpdateProductPriceRequest request,
@@ -184,13 +188,15 @@ public sealed class ProductPricesController : ControllerBase
         }
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Delete(
-        Guid id,
-        CancellationToken cancellationToken)
+         Guid id,
+         CancellationToken cancellationToken)
     {
         try
         {

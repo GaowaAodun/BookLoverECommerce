@@ -21,7 +21,7 @@ public enum ProductStatus
 }
 
 public sealed record ProductResponse(
-    int Id,
+    Guid Id,
     string Name,
     string Description,
     string Sku,
