@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookLoverECommerce.Products.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ProductsDbContext))]
-    [Migration("20260714023238_InitialProducts")]
+    [Migration("20260809191112_InitialProducts")]
     partial class InitialProducts
     {
         /// <inheritdoc />
@@ -68,11 +68,9 @@ namespace BookLoverECommerce.Products.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("BookLoverECommerce.Products.Domain.Entities.Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Brand")
                         .HasMaxLength(100)

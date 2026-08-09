@@ -1,23 +1,55 @@
 using BookLoverECommerce.Contracts.Products;
+using BookLoverECommerce.Price.Application.DTOs;
+using BookLoverECommerce.Price.Application.Exceptions;
+using BookLoverECommerce.Price.Application.Prices;
+using BookLoverECommerce.Price.Domain.Enums;
 using MassTransit;
 
 namespace BookLoverECommerce.Price.Api.Consumers;
 
-public sealed class ProductCreatedConsumer(
-    ILogger<ProductCreatedConsumer> logger)
+public sealed class ProductCreatedConsumer
     : IConsumer<ProductCreated>
 {
-    public Task Consume(
+    private readonly IProductPriceService _productPriceService;
+    private readonly ILogger<ProductCreatedConsumer> _logger;
+
+    public ProductCreatedConsumer(
+        IProductPriceService productPriceService,
+        ILogger<ProductCreatedConsumer> logger)
+    {
+        _productPriceService = productPriceService;
+        _logger = logger;
+    }
+
+    public async Task Consume(
         ConsumeContext<ProductCreated> context)
     {
         var message = context.Message;
 
-        logger.LogInformation(
-            "Received ProductCreated: ID={ProductId}, SKU={Sku}, Price={Price}",
-            message.ProductId,
-            message.Sku,
-            message.Price);
+        try
+        {
+            await _productPriceService.CreateAsync(
+                new CreateProductPriceCommand(
+                    ProductId: message.ProductId,
+                    BasePrice: message.Price,
+                    Currency: Currency.CAD,
+                    SalePrice: null,
+                    SaleStartDate: null,
+                    SaleEndDate: null),
+                context.CancellationToken);
 
-        return Task.CompletedTask;
+            _logger.LogInformation(
+                "Initial price created for ProductId={ProductId}, SKU={Sku}, Price={Price} {Currency}",
+                message.ProductId,
+                message.Sku,
+                message.Price,
+                Currency.CAD);
+        }
+        catch (DuplicateProductPriceException)
+        {
+            _logger.LogInformation(
+                "Price already exists for ProductId={ProductId}. Duplicate ProductCreated event ignored.",
+                message.ProductId);
+        }
     }
 }

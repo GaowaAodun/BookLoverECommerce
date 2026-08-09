@@ -65,10 +65,10 @@ public sealed class ProductsController : ControllerBase
         return Ok(await _productService.GetAllForAdminAsync(cancellationToken));
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ProductDto>> GetById(
-        int id,
+        Guid id,
         CancellationToken cancellationToken)
     {
         try
@@ -81,10 +81,10 @@ public sealed class ProductsController : ControllerBase
         }
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ProductDto>> UpdateProduct(
-        int id,
+        Guid id,
         [FromBody] UpdateProductRequest request,
         CancellationToken cancellationToken)
     {
@@ -188,14 +188,14 @@ public sealed class ProductsController : ControllerBase
     }
 
     // DELETE /products/{id}
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteProduct(
-        int id,
+        Guid id,
         CancellationToken cancellationToken)
     {
         try
@@ -216,14 +216,14 @@ public sealed class ProductsController : ControllerBase
     }
 
     // PATCH /products/{id}/archive
-    [HttpPatch("{id:int}/archive")]
+    [HttpPatch("{id:guid}/archive")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ArchiveProduct(
-        int id,
+        Guid id,
         CancellationToken cancellationToken)
     {
         try
@@ -244,7 +244,7 @@ public sealed class ProductsController : ControllerBase
     }
 
     // PATCH /api/products/{id}/unarchive
-    [HttpPatch("{id:int}/unarchive")]
+    [HttpPatch("{id:guid}/unarchive")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -252,7 +252,7 @@ public sealed class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UnarchiveProduct(
-        int id,
+        Guid id,
         CancellationToken cancellationToken)
     {
         try
@@ -285,12 +285,12 @@ public sealed class ProductsController : ControllerBase
                ?? User.FindFirstValue("sub");
     }
 
-    private static IReadOnlyCollection<int>? ParseProductIds(
-        string? productIds)
+    private static IReadOnlyCollection<Guid>? ParseProductIds(
+    string? productIds)
     {
         if (string.IsNullOrWhiteSpace(productIds))
         {
-            return Array.Empty<int>();
+            return Array.Empty<Guid>();
         }
 
         var values = productIds.Split(
@@ -298,11 +298,12 @@ public sealed class ProductsController : ControllerBase
             StringSplitOptions.RemoveEmptyEntries |
             StringSplitOptions.TrimEntries);
 
-        var parsedIds = new List<int>();
+        var parsedIds = new List<Guid>();
 
         foreach (var value in values)
         {
-            if (!int.TryParse(value, out var id) || id <= 0)
+            if (!Guid.TryParse(value, out var id) ||
+                id == Guid.Empty)
             {
                 return null;
             }
@@ -315,10 +316,10 @@ public sealed class ProductsController : ControllerBase
             .ToArray();
     }
 
-    [HttpPatch("{id:int}/publish")]
+    [HttpPatch("{id:guid}/publish")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PublishProduct(
-        int id,
+        Guid id,
         CancellationToken cancellationToken)
     {
         try

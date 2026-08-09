@@ -3,7 +3,7 @@ using BookLoverECommerce.Products.Domain.Enums;
 namespace BookLoverECommerce.Products.Application.DTOs;
 
 public sealed record ProductDto(
-    int Id,
+    Guid Id,
     string Name,
     string Description,
     string Sku,

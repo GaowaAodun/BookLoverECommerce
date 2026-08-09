@@ -38,7 +38,7 @@ public sealed class ProductRepository : IProductRepository
     }
 
     public async Task<IReadOnlyList<Product>> GetByIdsAsync(
-        IReadOnlyCollection<int> productIds,
+        IReadOnlyCollection<Guid> productIds,
         CancellationToken cancellationToken = default)
     {
         if (productIds.Count == 0)
@@ -57,7 +57,7 @@ public sealed class ProductRepository : IProductRepository
     }
 
     public Task<Product?> GetByIdAsync(
-        int id,
+        Guid id,
         CancellationToken cancellationToken = default)
     {
         return _dbContext.Products
