@@ -1,10 +1,8 @@
 using BookLoverECommerce.Web.Models.Products;
 using BookLoverECommerce.Web.Services.Interfaces;
-//using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BookLoverECommerce.Web.Pages.Products;
-
 
 public sealed class IndexModel : PageModel
 {
@@ -19,18 +17,19 @@ public sealed class IndexModel : PageModel
     public IReadOnlyList<ProductViewModel> Products
         { get; private set; } = [];
 
-    public string? Search { get; set; }
+    public string? Search { get; private set; }
 
-    public string? Sort { get; set; }
-    public string? Category { get; set; }
+    public string? Sort { get; private set; }
 
-    public string? ErrorMessage { get; set; }
+    public string? Category { get; private set; }
+
+    public string? ErrorMessage { get; private set; }
 
     public async Task OnGetAsync(
-    string? search,
-    string? category,
-    string? sort,
-    CancellationToken cancellationToken)
+        string? search,
+        string? category,
+        string? sort,
+        CancellationToken cancellationToken)
     {
         Search = search;
         Category = category;
@@ -39,8 +38,8 @@ public sealed class IndexModel : PageModel
         try
         {
             var products =
-                (await _productsApiClient
-                    .GetProductsAsync(cancellationToken))
+                (await _productsApiClient.GetProductsAsync(
+                    cancellationToken))
                 .ToList();
 
             // Search by title or author
@@ -57,33 +56,35 @@ public sealed class IndexModel : PageModel
                             StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
-            if (!string.IsNullOrWhiteSpace(category))
-{
-    products = products
-        .Where(product =>
-            string.Equals(
-                product.Category,
-                category,
-                StringComparison.OrdinalIgnoreCase))
-        .ToList();
-}
 
-            // Sort products
+            // Category filter
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                products = products
+                    .Where(product =>
+                        string.Equals(
+                            product.Category,
+                            category,
+                            StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            // Sorting
             products = sort switch
             {
                 "price_asc" =>
                     products
-                        .OrderBy(p => p.Price)
+                        .OrderBy(product => product.Price)
                         .ToList(),
 
                 "price_desc" =>
                     products
-                        .OrderByDescending(p => p.Price)
+                        .OrderByDescending(product => product.Price)
                         .ToList(),
 
                 "name_asc" =>
                     products
-                        .OrderBy(p => p.Title)
+                        .OrderBy(product => product.Title)
                         .ToList(),
 
                 _ => products
@@ -91,10 +92,12 @@ public sealed class IndexModel : PageModel
 
             Products = products;
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
             ErrorMessage =
-                "Products could not be loaded. Please try again.";
+                $"Products could not be loaded. {ex.Message}";
+
+            Products = [];
         }
     }
 }

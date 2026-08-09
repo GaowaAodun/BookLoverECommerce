@@ -1,0 +1,434 @@
+@page
+@model BookLoverECommerce.Web.Pages.Cart.IndexModel
+
+@{
+    ViewData["Title"] = "My Cart";
+}
+
+<section class="cart-page">
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+        <div class="cart-page-header">
+
+            <div>
+                <span class="section-label">
+                    YOUR SHOPPING BAG
+                </span>
+
+                <h1>My Cart</h1>
+
+                <p>
+                    Review your books, update quantities,
+                    or continue shopping.
+                </p>
+            </div>
+
+            <a asp-page="/Products/Index"
+               class="btn btn-outline-dark">
+
+                ← Continue Shopping
+
+            </a>
+
+        </div>
+
+
+        <!-- SUCCESS MESSAGE -->
+        @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">
+                @Model.SuccessMessage
+            </div>
+        }
+
+
+        <!-- ERROR MESSAGE -->
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+
+
+        @if (Model.DisplayItems.Count == 0)
+        {
+            <!-- EMPTY CART -->
+
+            <div class="empty-cart">
+
+                <div class="empty-cart-icon">
+                    🛒
+                </div>
+
+                <h2>Your cart is empty</h2>
+
+                <p>
+                    Looks like you haven't added any books yet.
+                    Explore the collection and find something you love.
+                </p>
+
+                <a asp-page="/Products/Index"
+                   class="btn btn-dark btn-lg">
+
+                    Browse Books
+
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="cart-layout">
+
+                <!-- =========================
+                     LEFT SIDE: CART ITEMS
+                ========================== -->
+
+                <div class="cart-items-section">
+
+                    <div class="cart-items-header">
+
+                        <h2>
+                            Cart Items
+                        </h2>
+
+                        <span>
+                            @Model.Cart.TotalItems item@(Model.Cart.TotalItems == 1 ? "" : "s")
+                        </span>
+
+                    </div>
+
+
+                    @foreach (var item in Model.DisplayItems)
+                    {
+                        <article class="cart-item">
+
+                            <!-- PRODUCT IMAGE -->
+                            <div class="cart-item-image">
+
+                                <a asp-page="/Products/Details"
+                                   asp-route-id="@item.ProductId">
+
+                                    @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl"
+                                             alt="@item.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="cart-image-placeholder">
+                                            📖
+                                        </div>
+                                    }
+
+                                </a>
+
+                            </div>
+
+
+                            <!-- PRODUCT INFO -->
+                            <div class="cart-item-content">
+
+                                <div class="cart-item-main">
+
+                                    <div>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.Category))
+                                        {
+                                            <span class="cart-item-category">
+                                                @item.Category
+                                            </span>
+                                        }
+
+
+                                        <h3>
+                                            <a asp-page="/Products/Details"
+                                               asp-route-id="@item.ProductId"
+                                               class="cart-product-link">
+
+                                                @item.Title
+
+                                            </a>
+                                        </h3>
+
+
+                                        @if (!string.IsNullOrWhiteSpace(item.Author))
+                                        {
+                                            <p class="cart-item-author">
+                                                by @item.Author
+                                            </p>
+                                        }
+
+                                    </div>
+
+
+                                    <!-- REMOVE -->
+                                    <form method="post"
+                                          asp-page-handler="Remove">
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@item.ProductId" />
+
+                                        <button type="submit"
+                                                class="cart-remove-button"
+                                                title="Remove item">
+
+                                            Remove
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+
+                                <!-- PRICE -->
+                                <div class="cart-item-price">
+
+                                    @item.Price.ToString("C")
+
+                                </div>
+
+
+                                <!-- QUANTITY + SUBTOTAL -->
+                                <div class="cart-item-bottom">
+
+                                    <form method="post"
+                                          asp-page-handler="Update"
+                                          class="cart-quantity-form">
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@item.ProductId" />
+
+
+                                        <label for="quantity-@item.ProductId">
+                                            Quantity
+                                        </label>
+
+
+                                        <div class="cart-quantity-control">
+
+                                            <button type="button"
+                                                    class="cart-quantity-button"
+                                                    onclick="decreaseCartQuantity(@item.ProductId)">
+
+                                                −
+
+                                            </button>
+
+
+                                            <input id="quantity-@item.ProductId"
+                                                   type="number"
+                                                   name="quantity"
+                                                   value="@item.Quantity"
+                                                   min="1"
+                                                   max="100"
+                                                   class="form-control cart-quantity-input" />
+
+
+                                            <button type="button"
+                                                    class="cart-quantity-button"
+                                                    onclick="increaseCartQuantity(@item.ProductId)">
+
+                                                +
+
+                                            </button>
+
+                                        </div>
+
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-dark">
+
+                                            Update
+
+                                        </button>
+
+                                    </form>
+
+
+                                    <div class="cart-item-subtotal">
+
+                                        <span>
+                                            Subtotal
+                                        </span>
+
+                                        <strong>
+                                            @item.Subtotal.ToString("C")
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+                    }
+
+                </div>
+
+
+                <!-- =========================
+                     RIGHT SIDE: ORDER SUMMARY
+                ========================== -->
+
+                <aside class="cart-summary">
+
+                    <h2>
+                        Order Summary
+                    </h2>
+
+
+                    <div class="cart-summary-row">
+
+                        <span>
+                            Items
+                        </span>
+
+                        <span>
+                            @Model.Cart.TotalItems
+                        </span>
+
+                    </div>
+
+
+                    <div class="cart-summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <span>
+                            @Model.CartSubtotal.ToString("C")
+                        </span>
+
+                    </div>
+
+
+                    <div class="cart-summary-row">
+
+                        <span>
+                            Shipping
+                        </span>
+
+                        <span class="text-success">
+                            Free
+                        </span>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <div class="cart-summary-total">
+
+                        <span>
+                            Estimated Total
+                        </span>
+
+                        <strong>
+                            @Model.CartSubtotal.ToString("C")
+                        </strong>
+
+                    </div>
+
+
+                    <p class="cart-summary-note">
+                        Final pricing will be calculated by the
+                        Price service during checkout.
+                    </p>
+
+
+                    <button type="button"
+                            class="btn btn-dark btn-lg w-100"
+                            disabled>
+
+                        Checkout
+
+                    </button>
+
+
+                    <a asp-page="/Products/Index"
+                       class="btn btn-outline-dark w-100 mt-3">
+
+                        Continue Shopping
+
+                    </a>
+
+
+                    <div class="cart-summary-security">
+
+                        <div>
+                            ✓ Secure checkout
+                        </div>
+
+                        <div>
+                            ✓ Easy cart updates
+                        </div>
+
+                        <div>
+                            ✓ Protected customer account
+                        </div>
+
+                    </div>
+
+                </aside>
+
+            </div>
+        }
+
+    </div>
+
+</section>
+
+
+@section Scripts
+{
+    <script>
+
+        function increaseCartQuantity(productId) {
+
+            const input =
+                document.getElementById(
+                    `quantity-${productId}`);
+
+            if (!input) {
+                return;
+            }
+
+            let quantity =
+                parseInt(input.value) || 1;
+
+            if (quantity < 100) {
+                input.value = quantity + 1;
+            }
+        }
+
+
+        function decreaseCartQuantity(productId) {
+
+            const input =
+                document.getElementById(
+                    `quantity-${productId}`);
+
+            if (!input) {
+                return;
+            }
+
+            let quantity =
+                parseInt(input.value) || 1;
+
+            if (quantity > 1) {
+                input.value = quantity - 1;
+            }
+        }
+
+    </script>
+}

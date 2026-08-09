@@ -16,16 +16,16 @@
                 BOOKLOVER COLLECTION
             </span>
 
-            <h1>Explore Books</h1>
+            <h1>Explore Products</h1>
 
             <p>
-                Discover books by title or author and sort them by name or price.
+                Discover books, gifts, clothing and other BookLover products.
             </p>
 
         </div>
 
 
-        <!-- SEARCH AND SORT -->
+        <!-- SEARCH / CATEGORY / SORT -->
         <form method="get"
               class="product-filters">
 
@@ -33,7 +33,7 @@
             <div class="filter-search">
 
                 <label for="search">
-                    Search books
+                    Search products
                 </label>
 
                 <input id="search"
@@ -42,6 +42,61 @@
                        value="@Model.Search"
                        class="form-control"
                        placeholder="Search by title or author..." />
+
+            </div>
+
+
+            <!-- CATEGORY -->
+            <div>
+
+                <label for="category">
+                    Category
+                </label>
+
+                <select id="category"
+                        name="category"
+                        class="form-select">
+
+                    <option value="">
+                        All Categories
+                    </option>
+
+                    <option value="Fiction"
+                            selected="@(Model.Category == "Fiction")">
+                        Fiction
+                    </option>
+
+                    <option value="Technology"
+                            selected="@(Model.Category == "Technology")">
+                        Technology
+                    </option>
+
+                    <option value="Business"
+                            selected="@(Model.Category == "Business")">
+                        Business
+                    </option>
+
+                    <option value="Clothing"
+                            selected="@(Model.Category == "Clothing")">
+                        Clothing
+                    </option>
+
+                    <option value="Printed Books"
+                            selected="@(Model.Category == "Printed Books")">
+                        Printed Books
+                    </option>
+
+                    <option value="Gifts"
+                            selected="@(Model.Category == "Gifts")">
+                        Gifts
+                    </option>
+
+                    <option value="Self Development"
+                            selected="@(Model.Category == "Self Development")">
+                        Self Development
+                    </option>
+
+                </select>
 
             </div>
 
@@ -81,12 +136,12 @@
             </div>
 
 
-            <!-- ACTION BUTTONS -->
+            <!-- FILTER ACTIONS -->
             <div class="filter-actions">
 
                 <button type="submit"
                         class="btn btn-dark">
-                    Search
+                    Apply
                 </button>
 
                 <a asp-page="/Products/Index"
@@ -95,60 +150,11 @@
                 </a>
 
             </div>
-            <div>
-
-    <label for="category">
-        Category
-    </label>
-
-    <select id="category"
-            name="category"
-            class="form-select">
-
-        <option value="">
-            All Categories
-        </option>
-
-        <option value="Fiction"
-                selected="@(Model.Category == "Fiction")">
-            Fiction
-        </option>
-
-        <option value="Technology"
-                selected="@(Model.Category == "Technology")">
-            Technology
-        </option>
-
-        <option value="Business"
-                selected="@(Model.Category == "Business")">
-            Business
-        </option>
-        <option value="Clothing"
-                selected="@(Model.Category == "Clothing")">
-            Clothing
-        </option>
-        <option value="Printed Books"
-                selected="@(Model.Category == "Printed Books")">
-            Printed Books
-        </option>
-        <option value="Gifts"
-                selected="@(Model.Category == "Gifts")">
-            Gifts
-        </option>
-
-        <option value="Self Development"
-                selected="@(Model.Category == "Self Development")">
-            Self Development
-        </option>
-
-    </select>
-
-</div>
 
         </form>
 
 
-        <!-- API ERROR -->
+        <!-- ERROR -->
         @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
         {
             <div class="alert alert-danger mt-4">
@@ -157,21 +163,21 @@
         }
         else
         {
-            <!-- RESULTS COUNT -->
+            <!-- RESULT COUNT -->
             <div class="product-results-header">
 
                 <p>
-                    <strong>
-                        @Model.Products.Count
-                    </strong>
+                    <strong>@Model.Products.Count</strong>
 
-                    @(Model.Products.Count == 1 ? "book found" : "books found")
+                    @(Model.Products.Count == 1
+                        ? "product found"
+                        : "products found")
                 </p>
 
             </div>
 
 
-            <!-- NO PRODUCTS -->
+            <!-- EMPTY RESULT -->
             @if (Model.Products.Count == 0)
             {
                 <div class="empty-products">
@@ -180,26 +186,35 @@
                         📚
                     </div>
 
-                    <h2>No books found</h2>
+                    <h2>No products found</h2>
 
                     @if (!string.IsNullOrWhiteSpace(Model.Search))
                     {
                         <p>
-                            No books matched
+                            No products matched
                             <strong>"@Model.Search"</strong>.
-                            Try another title or author.
+                            Try another search.
+                        </p>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.Category))
+                    {
+                        <p>
+                            No products are currently available
+                            in the
+                            <strong>@Model.Category</strong>
+                            category.
                         </p>
                     }
                     else
                     {
                         <p>
-                            There are currently no books available.
+                            There are currently no products available.
                         </p>
                     }
 
                     <a asp-page="/Products/Index"
                        class="btn btn-dark">
-                        View all books
+                        View All Products
                     </a>
 
                 </div>
@@ -213,26 +228,33 @@
                     {
                         <article class="product-card">
 
+
                             <!-- PRODUCT IMAGE -->
                             <div class="product-image">
 
-                                @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                {
-                                    <img src="@product.ImageUrl"
-                                         alt="@product.Title" />
-                                }
-                                else
-                                {
-                                    <div class="product-placeholder">
-                                        📖
-                                    </div>
-                                }
+                                <a asp-page="/Products/Details"
+                                   asp-route-id="@product.Id">
+
+                                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl"
+                                             alt="@product.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="product-placeholder">
+                                            📖
+                                        </div>
+                                    }
+
+                                </a>
 
                             </div>
 
 
-                            <!-- PRODUCT INFORMATION -->
+                            <!-- PRODUCT CONTENT -->
                             <div class="product-content">
+
 
                                 <!-- CATEGORY -->
                                 @if (!string.IsNullOrWhiteSpace(product.Category))
@@ -249,14 +271,16 @@
 
                                 <!-- TITLE -->
                                 <h2>
-    <a asp-page="/Products/Details"
-       asp-route-id="@product.Id"
-       class="product-title-link">
 
-        @product.Title
+                                    <a asp-page="/Products/Details"
+                                       asp-route-id="@product.Id"
+                                       class="product-title-link">
 
-    </a>
-</h2>
+                                        @product.Title
+
+                                    </a>
+
+                                </h2>
 
 
                                 <!-- AUTHOR -->
@@ -277,20 +301,39 @@
                                 }
 
 
-                                <!-- PRICE AND CART -->
-                                <div class="product-bottom">
+                                <!-- PRICE -->
+                                <div class="product-price-row">
 
                                     <strong class="product-price">
                                         @product.Price.ToString("C")
                                     </strong>
 
+                                </div>
 
+
+                                <!-- PRODUCT ACTIONS -->
+                                <div class="product-actions">
+
+                                    <!-- DETAILS -->
+                                    <a asp-page="/Products/Details"
+                                       asp-route-id="@product.Id"
+                                       class="btn btn-outline-dark">
+
+                                        Details
+
+                                    </a>
+
+
+                                    <!-- LOGGED-IN CUSTOMER -->
                                     @if (User.Identity?.IsAuthenticated == true)
                                     {
                                         <form method="post"
                                               asp-page="/Cart/Index"
                                               asp-page-handler="Add">
 
+                                            <!-- IMPORTANT:
+                                                 use product.Id,
+                                                 NOT Model.Product.Id -->
                                             <input type="hidden"
                                                    name="productId"
                                                    value="@product.Id" />
@@ -299,19 +342,30 @@
                                                    name="quantity"
                                                    value="1" />
 
+                                            <!-- Return to exact current page
+                                                 including filters/search -->
+                                            <input type="hidden"
+                                                   name="returnUrl"
+                                                   value="@($"{Request.Path}{Request.QueryString}")" />
+
                                             <button type="submit"
                                                     class="btn btn-dark">
+
                                                 Add to Cart
+
                                             </button>
 
                                         </form>
                                     }
                                     else
                                     {
+                                        <!-- GUEST -->
                                         <a asp-page="/Account/Login"
-                                           asp-route-returnUrl="/Products"
+                                           asp-route-returnUrl="@($"{Request.Path}{Request.QueryString}")"
                                            class="btn btn-dark">
+
                                             Login to Add
+
                                         </a>
                                     }
 

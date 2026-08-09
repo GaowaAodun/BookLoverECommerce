@@ -140,177 +140,165 @@
                     FOR YOU
                 </span>
 
-                <h2>Recommended Books</h2>
+                <section class="products-section"
+         id="recommended">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    FOR YOU
+                </span>
+
+                <h2>
+                    Recommended Books
+                </h2>
+
             </div>
 
             <a asp-page="/Products/Index">
                 See all books
             </a>
-        </div>
-
-
-        <div class="book-grid">
-
-            <!-- BOOK 1 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-
-                    <div class="book-badge">
-                        Bestseller
-                    </div>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Technology
-                    </span>
-
-                    <h3>Clean Code</h3>
-
-                    <p class="author">
-                        Robert C. Martin
-                    </p>
-
-                    <div class="rating">
-                        ★★★★★
-                        <span>4.8</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$32.99</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- BOOK 2 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Fiction
-                    </span>
-
-                    <h3>The Midnight Library</h3>
-
-                    <p class="author">
-                        Matt Haig
-                    </p>
-
-                    <div class="rating">
-                        ★★★★☆
-                        <span>4.5</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$21.99</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- BOOK 3 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Business
-                    </span>
-
-                    <h3>Atomic Habits</h3>
-
-                    <p class="author">
-                        James Clear
-                    </p>
-
-                    <div class="rating">
-                        ★★★★★
-                        <span>4.9</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$24.50</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- BOOK 4 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Technology
-                    </span>
-
-                    <h3>Design Patterns</h3>
-
-                    <p class="author">
-                        Erich Gamma
-                    </p>
-
-                    <div class="rating">
-                        ★★★★☆
-                        <span>4.6</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$44.99</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
 
         </div>
+
+
+        @if (Model.RecommendedProducts.Count == 0)
+        {
+            <div class="alert alert-light">
+                Recommendations will appear here when
+                products become available.
+            </div>
+        }
+        else
+        {
+            <div class="book-grid">
+
+                @foreach (var product in Model.RecommendedProducts)
+                {
+                    <article class="book-card">
+
+                        <!-- IMAGE -->
+                        <a asp-page="/Products/Details"
+                           asp-route-id="@product.Id"
+                           class="book-image-link">
+
+                            <div class="book-image-placeholder">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl"
+                                         alt="@product.Title"
+                                         class="homepage-book-image" />
+                                }
+                                else
+                                {
+                                    <span>
+                                        📖
+                                    </span>
+                                }
+
+                            </div>
+
+                        </a>
+
+
+                        <!-- INFORMATION -->
+                        <div class="book-info">
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                product.Category))
+                            {
+                                <span class="book-category">
+                                    @product.Category
+                                </span>
+                            }
+
+
+                            <h3>
+
+                                <a asp-page="/Products/Details"
+                                   asp-route-id="@product.Id"
+                                   class="product-title-link">
+
+                                    @product.Title
+
+                                </a>
+
+                            </h3>
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                product.Author))
+                            {
+                                <p class="author">
+                                    @product.Author
+                                </p>
+                            }
+
+
+                            <div class="book-footer">
+
+                                <strong>
+                                    @product.Price.ToString("C")
+                                </strong>
+
+
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <form method="post"
+                                          asp-page="/Cart/Index"
+                                          asp-page-handler="Add">
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@product.Id" />
+
+                                        <input type="hidden"
+                                               name="quantity"
+                                               value="1" />
+
+                                        <input type="hidden"
+                                               name="returnUrl"
+                                               value="@Request.Path" />
+
+                                        <button type="submit"
+                                                class="cart-button">
+
+                                            Add to Cart
+
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a asp-page="/Account/Login"
+                                       asp-route-returnUrl="@Request.Path"
+                                       class="cart-button">
+
+                                        Login to Add
+
+                                    </a>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
 
     </div>
-</section>
 
+</section>
 
 <!-- PROMOTIONAL AD -->
 <section class="promo-section">

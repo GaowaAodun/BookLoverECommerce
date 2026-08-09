@@ -8,13 +8,18 @@ public interface ICartApiClient
         string userId,
         CancellationToken cancellationToken = default);
 
-    Task AddItemAsync(
+    Task<CartViewModel?> AddItemAsync(
         string userId,
         AddCartItemRequest request,
         CancellationToken cancellationToken = default);
 
-    Task RemoveItemAsync(
+    Task<CartViewModel?> UpdateItemAsync(
         string userId,
-        int productId,
+        UpdateCartItemRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<CartViewModel?> RemoveItemAsync(
+        string userId,
+        RemoveCartItemRequest request,
         CancellationToken cancellationToken = default);
 }
