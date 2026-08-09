@@ -1,0 +1,331 @@
+@page
+@model BookLoverECommerce.Web.Pages.Products.IndexModel
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<section class="product-page">
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+        <div class="product-page-header">
+
+            <span class="section-label">
+                BOOKLOVER COLLECTION
+            </span>
+
+            <h1>Explore Books</h1>
+
+            <p>
+                Discover books by title or author and sort them by name or price.
+            </p>
+
+        </div>
+
+
+        <!-- SEARCH AND SORT -->
+        <form method="get"
+              class="product-filters">
+
+            <!-- SEARCH -->
+            <div class="filter-search">
+
+                <label for="search">
+                    Search books
+                </label>
+
+                <input id="search"
+                       type="search"
+                       name="search"
+                       value="@Model.Search"
+                       class="form-control"
+                       placeholder="Search by title or author..." />
+
+            </div>
+
+
+            <!-- SORT -->
+            <div>
+
+                <label for="sort">
+                    Sort by
+                </label>
+
+                <select id="sort"
+                        name="sort"
+                        class="form-select">
+
+                    <option value="">
+                        Featured
+                    </option>
+
+                    <option value="name_asc"
+                            selected="@(Model.Sort == "name_asc")">
+                        Name: A - Z
+                    </option>
+
+                    <option value="price_asc"
+                            selected="@(Model.Sort == "price_asc")">
+                        Price: Low to High
+                    </option>
+
+                    <option value="price_desc"
+                            selected="@(Model.Sort == "price_desc")">
+                        Price: High to Low
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ACTION BUTTONS -->
+            <div class="filter-actions">
+
+                <button type="submit"
+                        class="btn btn-dark">
+                    Search
+                </button>
+
+                <a asp-page="/Products/Index"
+                   class="btn btn-outline-secondary">
+                    Clear
+                </a>
+
+            </div>
+            <div>
+
+    <label for="category">
+        Category
+    </label>
+
+    <select id="category"
+            name="category"
+            class="form-select">
+
+        <option value="">
+            All Categories
+        </option>
+
+        <option value="Fiction"
+                selected="@(Model.Category == "Fiction")">
+            Fiction
+        </option>
+
+        <option value="Technology"
+                selected="@(Model.Category == "Technology")">
+            Technology
+        </option>
+
+        <option value="Business"
+                selected="@(Model.Category == "Business")">
+            Business
+        </option>
+        <option value="Clothing"
+                selected="@(Model.Category == "Clothing")">
+            Clothing
+        </option>
+        <option value="Printed Books"
+                selected="@(Model.Category == "Printed Books")">
+            Printed Books
+        </option>
+        <option value="Gifts"
+                selected="@(Model.Category == "Gifts")">
+            Gifts
+        </option>
+
+        <option value="Self Development"
+                selected="@(Model.Category == "Self Development")">
+            Self Development
+        </option>
+
+    </select>
+
+</div>
+
+        </form>
+
+
+        <!-- API ERROR -->
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mt-4">
+                @Model.ErrorMessage
+            </div>
+        }
+        else
+        {
+            <!-- RESULTS COUNT -->
+            <div class="product-results-header">
+
+                <p>
+                    <strong>
+                        @Model.Products.Count
+                    </strong>
+
+                    @(Model.Products.Count == 1 ? "book found" : "books found")
+                </p>
+
+            </div>
+
+
+            <!-- NO PRODUCTS -->
+            @if (Model.Products.Count == 0)
+            {
+                <div class="empty-products">
+
+                    <div class="empty-products-icon">
+                        📚
+                    </div>
+
+                    <h2>No books found</h2>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Search))
+                    {
+                        <p>
+                            No books matched
+                            <strong>"@Model.Search"</strong>.
+                            Try another title or author.
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+                            There are currently no books available.
+                        </p>
+                    }
+
+                    <a asp-page="/Products/Index"
+                       class="btn btn-dark">
+                        View all books
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <!-- PRODUCT GRID -->
+                <div class="products-grid">
+
+                    @foreach (var product in Model.Products)
+                    {
+                        <article class="product-card">
+
+                            <!-- PRODUCT IMAGE -->
+                            <div class="product-image">
+
+                                @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl"
+                                         alt="@product.Title" />
+                                }
+                                else
+                                {
+                                    <div class="product-placeholder">
+                                        📖
+                                    </div>
+                                }
+
+                            </div>
+
+
+                            <!-- PRODUCT INFORMATION -->
+                            <div class="product-content">
+
+                                <!-- CATEGORY -->
+                                @if (!string.IsNullOrWhiteSpace(product.Category))
+                                {
+                                    <div class="product-meta">
+
+                                        <span>
+                                            @product.Category
+                                        </span>
+
+                                    </div>
+                                }
+
+
+                                <!-- TITLE -->
+                                <h2>
+    <a asp-page="/Products/Details"
+       asp-route-id="@product.Id"
+       class="product-title-link">
+
+        @product.Title
+
+    </a>
+</h2>
+
+
+                                <!-- AUTHOR -->
+                                @if (!string.IsNullOrWhiteSpace(product.Author))
+                                {
+                                    <p class="product-author">
+                                        by @product.Author
+                                    </p>
+                                }
+
+
+                                <!-- DESCRIPTION -->
+                                @if (!string.IsNullOrWhiteSpace(product.Description))
+                                {
+                                    <p class="product-description">
+                                        @product.Description
+                                    </p>
+                                }
+
+
+                                <!-- PRICE AND CART -->
+                                <div class="product-bottom">
+
+                                    <strong class="product-price">
+                                        @product.Price.ToString("C")
+                                    </strong>
+
+
+                                    @if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        <form method="post"
+                                              asp-page="/Cart/Index"
+                                              asp-page-handler="Add">
+
+                                            <input type="hidden"
+                                                   name="productId"
+                                                   value="@product.Id" />
+
+                                            <input type="hidden"
+                                                   name="quantity"
+                                                   value="1" />
+
+                                            <button type="submit"
+                                                    class="btn btn-dark">
+                                                Add to Cart
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <a asp-page="/Account/Login"
+                                           asp-route-returnUrl="/Products"
+                                           class="btn btn-dark">
+                                            Login to Add
+                                        </a>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </article>
+                    }
+
+                </div>
+            }
+        }
+
+    </div>
+
+</section>

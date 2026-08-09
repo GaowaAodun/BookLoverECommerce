@@ -66,29 +66,61 @@
 
         <div class="category-grid">
 
-            <a class="category-card" href="#">
-                <span>📖</span>
-                <h3>Fiction</h3>
-                <p>Explore stories and novels</p>
-            </a>
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Fiction">
 
-            <a class="category-card" href="#">
-                <span>💻</span>
-                <h3>Technology</h3>
-                <p>Programming and innovation</p>
-            </a>
+    <span>📖</span>
 
-            <a class="category-card" href="#">
-                <span>📈</span>
-                <h3>Business</h3>
-                <p>Ideas for growth</p>
-            </a>
+    <h3>Fiction</h3>
 
-            <a class="category-card" href="#">
-                <span>🌱</span>
-                <h3>Self Development</h3>
-                <p>Become your best self</p>
-            </a>
+    <p>
+        Explore stories and novels
+    </p>
+
+</a>
+
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Technology">
+
+    <span>💻</span>
+
+    <h3>Technology</h3>
+
+    <p>
+        Programming and innovation
+    </p>
+
+</a>
+
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Business">
+
+    <span>📈</span>
+
+    <h3>Business</h3>
+
+    <p>
+        Ideas for growth
+    </p>
+
+</a>
+
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Self Development">
+
+    <span>🌱</span>
+
+    <h3>Self Development</h3>
+
+    <p>
+        Personal growth and better habits
+    </p>
+
+</a>
 
         </div>
 
@@ -336,93 +368,63 @@
 
 
         <form method="get"
-              asp-page="/Products/Index"
-              class="advanced-search">
+      asp-page="/Products/Index"
+      class="advanced-search">
 
-            <div class="search-field">
+    <div class="search-field">
 
-                <label>
-                    Search by name
-                </label>
+        <label>
+            Search books
+        </label>
 
-                <input type="text"
-                       name="search"
-                       class="form-control"
-                       placeholder="Book title, author..." />
+        <input type="text"
+               name="search"
+               class="form-control"
+               placeholder="Book title or author..." />
 
-            </div>
-
-
-            <div class="search-field">
-
-                <label>
-                    Minimum rating
-                </label>
-
-                <select name="rating"
-                        class="form-select">
-
-                    <option value="">
-                        Any rating
-                    </option>
-
-                    <option value="5">
-                        5 stars
-                    </option>
-
-                    <option value="4">
-                        4 stars & above
-                    </option>
-
-                    <option value="3">
-                        3 stars & above
-                    </option>
-
-                </select>
-
-            </div>
+    </div>
 
 
-            <div class="search-field">
+    <div class="search-field">
 
-                <label>
-                    Sort price
-                </label>
+        <label>
+            Sort by
+        </label>
 
-                <select name="sort"
-                        class="form-select">
+        <select name="sort"
+                class="form-select">
 
-                    <option value="">
-                        Default
-                    </option>
+            <option value="">
+                Featured
+            </option>
 
-                    <option value="price_asc">
-                        Price: Low to High
-                    </option>
+            <option value="name_asc">
+                Name: A - Z
+            </option>
 
-                    <option value="price_desc">
-                        Price: High to Low
-                    </option>
+            <option value="price_asc">
+                Price: Low to High
+            </option>
 
-                    <option value="rating_desc">
-                        Highest Rated
-                    </option>
+            <option value="price_desc">
+                Price: High to Low
+            </option>
 
-                </select>
+        </select>
 
-            </div>
+    </div>
 
 
-            <div class="search-button-container">
+    <div class="search-button-container">
 
-                <button type="submit"
-                        class="btn btn-dark">
-                    Search Books
-                </button>
+        <button type="submit"
+                class="btn btn-dark">
+            Search Books
+        </button>
 
-            </div>
+    </div>
 
-        </form>
+</form>
 
     </div>
 

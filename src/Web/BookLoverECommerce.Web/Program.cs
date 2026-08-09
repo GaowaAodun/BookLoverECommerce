@@ -1,6 +1,7 @@
 using BookLoverECommerce.Web.Services.ApiClients;
 using BookLoverECommerce.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using BookLoverECommerce.Web.Services.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,14 @@ var gatewayUrl =
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IAuthApiClient, AuthApiClient>();
+builder.Services.AddScoped<
+    IProductsApiClient,
+    ProductsApiClient>();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<
+    AuthenticationTokenHandler>();
 
 builder.Services.AddHttpClient(
     "GatewayPublic",
@@ -20,6 +29,19 @@ builder.Services.AddHttpClient(
         client.BaseAddress = new Uri(gatewayUrl);
         client.Timeout = TimeSpan.FromSeconds(30);
     });
+builder.Services
+    .AddHttpClient(
+        "GatewayAuthorized",
+        client =>
+        {
+            client.BaseAddress =
+                new Uri(gatewayUrl);
+
+            client.Timeout =
+                TimeSpan.FromSeconds(30);
+        })
+    .AddHttpMessageHandler<
+        AuthenticationTokenHandler>();
 
 builder.Services
     .AddAuthentication(

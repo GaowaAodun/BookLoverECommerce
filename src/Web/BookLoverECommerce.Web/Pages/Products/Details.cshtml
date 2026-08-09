@@ -1,0 +1,414 @@
+@page "{id:int}"
+@model BookLoverECommerce.Web.Pages.Products.DetailsModel
+
+@{
+    ViewData["Title"] =
+        Model.Product?.Title ?? "Product Details";
+}
+
+<section class="product-details-page">
+
+    <div class="container">
+
+        <!-- BACK LINK -->
+        <div class="mb-4">
+
+            <a asp-page="/Products/Index"
+               class="details-back-link">
+
+                ← Back to Products
+
+            </a>
+
+        </div>
+
+
+        <!-- ERROR MESSAGE -->
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <!-- PRODUCT DETAILS -->
+        else if (Model.Product is not null)
+        {
+            <div class="product-details-grid">
+
+
+                <!-- =========================
+                     LEFT: PRODUCT IMAGE
+                ========================== -->
+
+                <div class="details-image-wrapper">
+
+                    <div class="details-image">
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            Model.Product.ImageUrl))
+                        {
+                            <img src="@Model.Product.ImageUrl"
+                                 alt="Cover image for @Model.Product.Title" />
+                        }
+                        else
+                        {
+                            <div class="details-placeholder">
+
+                                <span class="details-placeholder-icon">
+                                    📖
+                                </span>
+
+                                <span>
+                                    No cover available
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     RIGHT: PRODUCT INFO
+                ========================== -->
+
+                <div class="details-content">
+
+
+                    <!-- CATEGORY -->
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.Product.Category))
+                    {
+                        <span class="details-category">
+
+                            @Model.Product.Category
+
+                        </span>
+                    }
+
+
+                    <!-- TITLE -->
+                    <h1 class="details-title">
+
+                        @Model.Product.Title
+
+                    </h1>
+
+
+                    <!-- AUTHOR -->
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.Product.Author))
+                    {
+                        <p class="details-author">
+
+                            by
+                            <strong>
+                                @Model.Product.Author
+                            </strong>
+
+                        </p>
+                    }
+
+
+                    <!-- DESCRIPTION -->
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.Product.Description))
+                    {
+                        <div class="details-description">
+
+                            <h2>
+                                About this book
+                            </h2>
+
+                            <p>
+                                @Model.Product.Description
+                            </p>
+
+                        </div>
+                    }
+
+
+                    <!-- PRODUCT INFORMATION -->
+                    <div class="details-info">
+
+                        <div class="details-info-item">
+
+                            <span class="details-info-label">
+                                Product ID
+                            </span>
+
+                            <strong>
+                                #@Model.Product.Id
+                            </strong>
+
+                        </div>
+
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            Model.Product.Category))
+                        {
+                            <div class="details-info-item">
+
+                                <span class="details-info-label">
+                                    Category
+                                </span>
+
+                                <strong>
+                                    @Model.Product.Category
+                                </strong>
+
+                            </div>
+                        }
+
+
+                        <div class="details-info-item">
+
+                            <span class="details-info-label">
+                                Availability
+                            </span>
+
+                            <strong class="text-success">
+                                Available
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PRICE -->
+                    <div class="details-price-section">
+
+                        <span class="details-price-label">
+                            Price
+                        </span>
+
+                        <div class="details-price">
+
+                            @Model.Product.Price.ToString("C")
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         LOGGED-IN CUSTOMER
+                    ========================== -->
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form method="post"
+                              asp-page="/Cart/Index"
+                              asp-page-handler="Add"
+                              class="details-cart-form">
+
+                            <input type="hidden"
+                                   name="productId"
+                                   value="@Model.Product.Id" />
+
+
+                            <!-- QUANTITY -->
+                            <div class="quantity-section">
+
+                                <label for="quantity"
+                                       class="form-label">
+
+                                    Quantity
+
+                                </label>
+
+
+                                <div class="quantity-control">
+
+                                    <button type="button"
+                                            class="quantity-button"
+                                            onclick="decreaseQuantity()"
+                                            aria-label="Decrease quantity">
+
+                                        −
+
+                                    </button>
+
+
+                                    <input id="quantity"
+                                           name="quantity"
+                                           type="number"
+                                           value="1"
+                                           min="1"
+                                           max="99"
+                                           class="form-control quantity-input" />
+
+
+                                    <button type="button"
+                                            class="quantity-button"
+                                            onclick="increaseQuantity()"
+                                            aria-label="Increase quantity">
+
+                                        +
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ADD TO CART -->
+                            <button type="submit"
+                                    class="btn btn-dark btn-lg details-add-button">
+
+                                Add to Cart
+
+                            </button>
+
+                        </form>
+                    }
+
+                    <!-- =========================
+                         GUEST CUSTOMER
+                    ========================== -->
+
+                    else
+                    {
+                        <div class="details-login-section">
+
+                            <p>
+                                Sign in to add this book to your cart.
+                            </p>
+
+                            <a asp-page="/Account/Login"
+                               asp-route-returnUrl="/Products/Details/@Model.Product.Id"
+                               class="btn btn-dark btn-lg">
+
+                                Login to Add to Cart
+
+                            </a>
+
+                        </div>
+                    }
+
+
+                    <!-- EXTRA SHOPPING INFO -->
+                    <div class="details-benefits">
+
+                        <div class="details-benefit">
+
+                            <span>
+                                ✓
+                            </span>
+
+                            <p>
+                                Secure checkout
+                            </p>
+
+                        </div>
+
+                        <div class="details-benefit">
+
+                            <span>
+                                ✓
+                            </span>
+
+                            <p>
+                                Easy cart management
+                            </p>
+
+                        </div>
+
+                        <div class="details-benefit">
+
+                            <span>
+                                ✓
+                            </span>
+
+                            <p>
+                                Browse and compare books anytime
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        <!-- PRODUCT NOT FOUND -->
+        else
+        {
+            <div class="empty-products">
+
+                <div class="empty-products-icon">
+                    📚
+                </div>
+
+                <h2>
+                    Product not found
+                </h2>
+
+                <p>
+                    The book you are looking for does not exist
+                    or may no longer be available.
+                </p>
+
+                <a asp-page="/Products/Index"
+                   class="btn btn-dark">
+
+                    Browse Products
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</section>
+
+
+@section Scripts
+{
+    <script>
+
+        function increaseQuantity() {
+
+            const quantityInput =
+                document.getElementById("quantity");
+
+            if (!quantityInput) {
+                return;
+            }
+
+            let quantity =
+                parseInt(quantityInput.value) || 1;
+
+            if (quantity < 99) {
+                quantityInput.value = quantity + 1;
+            }
+        }
+
+
+        function decreaseQuantity() {
+
+            const quantityInput =
+                document.getElementById("quantity");
+
+            if (!quantityInput) {
+                return;
+            }
+
+            let quantity =
+                parseInt(quantityInput.value) || 1;
+
+            if (quantity > 1) {
+                quantityInput.value = quantity - 1;
+            }
+        }
+
+    </script>
+}
