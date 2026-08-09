@@ -17,5 +17,5 @@ public sealed class UpdateCategoryRequest
     public int DisplayOrder { get; set; }
 
     [Display(Name = "Parent category")]
-    public int? ParentCategoryId { get; set; }
+   public int? ParentCategoryId { get; set; }
 }

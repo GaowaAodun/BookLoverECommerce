@@ -167,8 +167,8 @@ services:
 
       Database__ApplyMigrationsOnStartup: "true"
 
-      Jwt__Issuer: BookLoverECommerce.Auth
-      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__Key: ${JWT_KEY}
 
       AdminUser__Email: admin@booklover.com
@@ -206,8 +206,8 @@ services:
 
       Database__ApplyMigrationsOnStartup: "true"
 
-      Jwt__Issuer: BookLoverECommerce.Auth
-      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__Key: ${JWT_KEY}
 
       RabbitMq__Host: rabbitmq
@@ -248,8 +248,8 @@ services:
 
       Database__ApplyMigrationsOnStartup: "true"
 
-      Jwt__Issuer: BookLoverECommerce.Auth
-      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__Key: ${JWT_KEY}
 
       Services__ProductsApi: http://products-api:8080
@@ -294,8 +294,8 @@ services:
 
       Database__ApplyMigrationsOnStartup: "true"
 
-      Jwt__Issuer: BookLoverECommerce.Auth
-      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__Key: ${JWT_KEY}
 
       Services__ProductsApi: http://products-api:8080
@@ -335,8 +335,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Docker
       ASPNETCORE_URLS: http://+:8080
 
-      Jwt__Issuer: BookLoverECommerce.Auth
-      Jwt__Audience: BookLoverECommerce.Services
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
       Jwt__Key: ${JWT_KEY}
 
       ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: >-
