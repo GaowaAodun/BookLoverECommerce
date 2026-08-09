@@ -36,5 +36,6 @@
   </Folder>
   <Folder Name="/src/Web/">
     <Project Path="src/Web/BookLoverECommerce.Cms/BookLoverECommerce.Cms.csproj" />
+    <Project Path="src/Web/BookLoverECommerce.Web/BookLoverECommerce.Web.csproj" />
   </Folder>
 </Solution>
