@@ -8,14 +8,14 @@ public interface IProductRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Product>> GetByIdsAsync(
-        IReadOnlyCollection<int> productIds,
+        IReadOnlyCollection<Guid> productIds,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Product>> GetAllAsync(
         CancellationToken cancellationToken = default);
 
     Task<Product?> GetByIdAsync(
-        int id,
+        Guid id,
         CancellationToken cancellationToken = default);
 
     Task<bool> SkuExistsAsync(

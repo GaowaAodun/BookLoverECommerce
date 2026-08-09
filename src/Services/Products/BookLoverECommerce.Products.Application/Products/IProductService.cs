@@ -5,18 +5,18 @@ namespace BookLoverECommerce.Products.Application.Products;
 public interface IProductService
 {
     Task<IReadOnlyList<ProductDto>> GetProductsAsync(
-        IReadOnlyCollection<int>? productIds,
+        IReadOnlyCollection<Guid>? productIds,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<ProductDto>> GetAllForAdminAsync(
         CancellationToken cancellationToken = default);
 
     Task<ProductDto> GetByIdAsync(
-        int productId,
+        Guid productId,
         CancellationToken cancellationToken = default);
 
     Task<ProductDto> UpdateAsync(
-        int productId,
+        Guid productId,
         UpdateProductCommand command,
         CancellationToken cancellationToken = default);
 
@@ -25,18 +25,18 @@ public interface IProductService
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(
-        int productId,
+        Guid productId,
         CancellationToken cancellationToken = default);
 
     Task ArchiveAsync(
-        int productId,
+        Guid productId,
         CancellationToken cancellationToken = default);
 
     Task UnarchiveAsync(
-        int productId,
+        Guid productId,
         CancellationToken cancellationToken = default);
 
     Task PublishAsync(
-        int productId,
+        Guid productId,
         CancellationToken cancellationToken = default);
 }

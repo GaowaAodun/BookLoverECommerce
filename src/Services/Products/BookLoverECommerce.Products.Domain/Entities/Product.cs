@@ -20,6 +20,8 @@ public class Product
         string? brand = null,
         string? thumbnailUrl = null)
     {
+        Id = Guid.NewGuid();
+
         SetName(name);
         SetDescription(description);
         SetSku(sku);
@@ -42,7 +44,7 @@ public class Product
         CreatedAtUtc = DateTime.UtcNow;
     }
 
-    public int Id { get; private set; }
+    public Guid Id { get; private set; }
 
     public string Name { get; private set; } = string.Empty;
 
