@@ -1,6 +1,6 @@
-namespace BookLoverECommerce.Cms.Models;
+namespace BookLoverECommerce.Web.Models.Auth;
 
-public class AuthResponse
+public sealed class AuthResponse
 {
     public string Token { get; set; } = string.Empty;
 

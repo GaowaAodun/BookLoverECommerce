@@ -11,6 +11,7 @@ var gatewayUrl =
         "ApiGateway:BaseUrl is not configured.");
 
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<ICartApiClient, CartApiClient>();
 
 builder.Services.AddScoped<IAuthApiClient, AuthApiClient>();
 builder.Services.AddScoped<
@@ -48,14 +49,20 @@ builder.Services
         CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.LogoutPath = "/Account/Logout";
+        options.LoginPath =
+            "/Account/Login";
+
+        options.AccessDeniedPath =
+            "/Account/AccessDenied";
+
+        options.LogoutPath =
+            "/Account/Logout";
 
         options.Cookie.Name =
             "BookLoverECommerce.Auth";
 
         options.Cookie.HttpOnly = true;
+
         options.Cookie.SameSite =
             SameSiteMode.Lax;
 

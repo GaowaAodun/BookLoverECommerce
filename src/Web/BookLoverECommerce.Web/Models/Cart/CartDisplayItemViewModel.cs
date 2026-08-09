@@ -4,7 +4,8 @@ public sealed class CartDisplayItemViewModel
 {
     public int ProductId { get; set; }
 
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; set; } =
+        string.Empty;
 
     public string? Author { get; set; }
 

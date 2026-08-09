@@ -129,26 +129,13 @@
 
 
 <!-- RECOMMENDED BOOKS -->
-<section class="products-section"
-         id="recommended">
+<section class="home-products-section">
 
     <div class="container">
 
-        <div class="section-heading">
-            <div>
-                <span class="section-label">
-                    FOR YOU
-                </span>
-
-                <section class="products-section"
-         id="recommended">
-
-    <div class="container">
-
-        <div class="section-heading">
+        <div class="home-products-heading">
 
             <div>
-
                 <span class="section-label">
                     FOR YOU
                 </span>
@@ -157,10 +144,14 @@
                     Recommended Books
                 </h2>
 
+                <p>
+                    Discover popular products from our current collection.
+                </p>
             </div>
 
-            <a asp-page="/Products/Index">
-                See all books
+            <a asp-page="/Products/Index"
+               class="view-all-link">
+                See all products →
             </a>
 
         </div>
@@ -168,84 +159,86 @@
 
         @if (Model.RecommendedProducts.Count == 0)
         {
-            <div class="alert alert-light">
-                Recommendations will appear here when
-                products become available.
+            <div class="home-products-empty">
+                Products will appear here when they become available.
             </div>
         }
         else
         {
-            <div class="book-grid">
+            <div class="home-products-grid">
 
                 @foreach (var product in Model.RecommendedProducts)
                 {
-                    <article class="book-card">
+                    <article class="home-product-card">
 
                         <!-- IMAGE -->
                         <a asp-page="/Products/Details"
                            asp-route-id="@product.Id"
-                           class="book-image-link">
+                           class="home-product-image">
 
-                            <div class="book-image-placeholder">
+                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl"
+                                     alt="@product.Title" />
+                            }
+                            else
+                            {
+                                <div class="home-product-placeholder">
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    product.ImageUrl))
-                                {
-                                    <img src="@product.ImageUrl"
-                                         alt="@product.Title"
-                                         class="homepage-book-image" />
-                                }
-                                else
-                                {
-                                    <span>
-                                        📖
-                                    </span>
-                                }
+                                    <span>📖</span>
 
-                            </div>
+                                    <small>
+                                        @product.Category
+                                    </small>
+
+                                </div>
+                            }
 
                         </a>
 
 
                         <!-- INFORMATION -->
-                        <div class="book-info">
+                        <div class="home-product-content">
 
-                            @if (!string.IsNullOrWhiteSpace(
-                                product.Category))
+                            @if (!string.IsNullOrWhiteSpace(product.Category))
                             {
-                                <span class="book-category">
+                                <span class="home-product-category">
                                     @product.Category
                                 </span>
                             }
 
 
                             <h3>
-
                                 <a asp-page="/Products/Details"
-                                   asp-route-id="@product.Id"
-                                   class="product-title-link">
+                                   asp-route-id="@product.Id">
 
                                     @product.Title
 
                                 </a>
-
                             </h3>
 
 
-                            @if (!string.IsNullOrWhiteSpace(
-                                product.Author))
+                            @if (!string.IsNullOrWhiteSpace(product.Author))
                             {
-                                <p class="author">
-                                    @product.Author
+                                <p class="home-product-author">
+                                    by @product.Author
                                 </p>
                             }
 
 
-                            <div class="book-footer">
+                            @if (!string.IsNullOrWhiteSpace(product.Description))
+                            {
+                                <p class="home-product-description">
+                                    @product.Description
+                                </p>
+                            }
 
-                                <strong>
+
+                            <div class="home-product-footer">
+
+                                <div class="home-product-price">
                                     @product.Price.ToString("C")
-                                </strong>
+                                </div>
 
 
                                 @if (User.Identity?.IsAuthenticated == true)
@@ -267,7 +260,7 @@
                                                value="@Request.Path" />
 
                                         <button type="submit"
-                                                class="cart-button">
+                                                class="home-add-cart-button">
 
                                             Add to Cart
 
@@ -279,7 +272,7 @@
                                 {
                                     <a asp-page="/Account/Login"
                                        asp-route-returnUrl="@Request.Path"
-                                       class="cart-button">
+                                       class="home-add-cart-button">
 
                                         Login to Add
 

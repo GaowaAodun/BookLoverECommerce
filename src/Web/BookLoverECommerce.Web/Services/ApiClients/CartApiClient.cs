@@ -19,34 +19,39 @@ public sealed class CartApiClient : ICartApiClient
     }
 
     public async Task<CartViewModel?> GetCartAsync(
-        string userId,
-        CancellationToken cancellationToken = default)
-    {
-        var client =
-            _httpClientFactory.CreateClient("GatewayAuthorized");
+    string userId,
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayAuthorized");
 
-        using var response =
-            await client.GetAsync(
-                $"/api/cart/{userId}",
-                cancellationToken);
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return new CartViewModel
-            {
-                UserId = userId
-            };
-        }
-
-        await EnsureSuccessAsync(
-            response,
-            "Get cart",
+    using var response =
+        await client.GetAsync(
+            $"/api/cart/{userId}",
             cancellationToken);
 
-        return await response.Content
-            .ReadFromJsonAsync<CartViewModel>(
-                cancellationToken: cancellationToken);
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Get cart failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
     }
+
+    return System.Text.Json.JsonSerializer
+        .Deserialize<CartViewModel>(
+            responseBody,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+}
 
     public async Task<CartViewModel?> AddItemAsync(
         string userId,
