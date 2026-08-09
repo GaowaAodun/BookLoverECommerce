@@ -1,10 +1,429 @@
 ﻿@page
 @model IndexModel
+
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- HERO / CAMPAIGN -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+
+            <span class="hero-badge">
+                Summer Reading Campaign
+            </span>
+
+            <h1>
+                Discover stories you'll
+                <span>never forget.</span>
+            </h1>
+
+            <p>
+                Explore bestselling books, exclusive collections,
+                and special discounts hand-picked for book lovers.
+            </p>
+
+            <div class="hero-actions">
+                <a asp-page="/Products/Index"
+                   class="btn btn-dark btn-lg">
+                    Explore Books
+                </a>
+
+                <a href="#recommended"
+                   class="btn btn-outline-dark btn-lg">
+                    View Recommendations
+                </a>
+            </div>
+
+            <div class="hero-offer">
+                <strong>20% OFF</strong>
+                selected books this week
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- CATEGORY SECTION -->
+<section class="category-section">
+    <div class="container">
+
+        <div class="section-heading">
+            <div>
+                <span class="section-label">
+                    EXPLORE
+                </span>
+
+                <h2>Browse by category</h2>
+            </div>
+
+            <a asp-page="/Products/Index">
+                View all
+            </a>
+        </div>
+
+        <div class="category-grid">
+
+            <a class="category-card" href="#">
+                <span>📖</span>
+                <h3>Fiction</h3>
+                <p>Explore stories and novels</p>
+            </a>
+
+            <a class="category-card" href="#">
+                <span>💻</span>
+                <h3>Technology</h3>
+                <p>Programming and innovation</p>
+            </a>
+
+            <a class="category-card" href="#">
+                <span>📈</span>
+                <h3>Business</h3>
+                <p>Ideas for growth</p>
+            </a>
+
+            <a class="category-card" href="#">
+                <span>🌱</span>
+                <h3>Self Development</h3>
+                <p>Become your best self</p>
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- RECOMMENDED BOOKS -->
+<section class="products-section"
+         id="recommended">
+
+    <div class="container">
+
+        <div class="section-heading">
+            <div>
+                <span class="section-label">
+                    FOR YOU
+                </span>
+
+                <h2>Recommended Books</h2>
+            </div>
+
+            <a asp-page="/Products/Index">
+                See all books
+            </a>
+        </div>
+
+
+        <div class="book-grid">
+
+            <!-- BOOK 1 -->
+            <div class="book-card">
+
+                <div class="book-image-placeholder">
+                    <span>Book Cover</span>
+
+                    <div class="book-badge">
+                        Bestseller
+                    </div>
+                </div>
+
+                <div class="book-info">
+
+                    <span class="book-category">
+                        Technology
+                    </span>
+
+                    <h3>Clean Code</h3>
+
+                    <p class="author">
+                        Robert C. Martin
+                    </p>
+
+                    <div class="rating">
+                        ★★★★★
+                        <span>4.8</span>
+                    </div>
+
+                    <div class="book-footer">
+
+                        <strong>$32.99</strong>
+
+                        <button class="cart-button">
+                            Add to Cart
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- BOOK 2 -->
+            <div class="book-card">
+
+                <div class="book-image-placeholder">
+                    <span>Book Cover</span>
+                </div>
+
+                <div class="book-info">
+
+                    <span class="book-category">
+                        Fiction
+                    </span>
+
+                    <h3>The Midnight Library</h3>
+
+                    <p class="author">
+                        Matt Haig
+                    </p>
+
+                    <div class="rating">
+                        ★★★★☆
+                        <span>4.5</span>
+                    </div>
+
+                    <div class="book-footer">
+
+                        <strong>$21.99</strong>
+
+                        <button class="cart-button">
+                            Add to Cart
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- BOOK 3 -->
+            <div class="book-card">
+
+                <div class="book-image-placeholder">
+                    <span>Book Cover</span>
+                </div>
+
+                <div class="book-info">
+
+                    <span class="book-category">
+                        Business
+                    </span>
+
+                    <h3>Atomic Habits</h3>
+
+                    <p class="author">
+                        James Clear
+                    </p>
+
+                    <div class="rating">
+                        ★★★★★
+                        <span>4.9</span>
+                    </div>
+
+                    <div class="book-footer">
+
+                        <strong>$24.50</strong>
+
+                        <button class="cart-button">
+                            Add to Cart
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- BOOK 4 -->
+            <div class="book-card">
+
+                <div class="book-image-placeholder">
+                    <span>Book Cover</span>
+                </div>
+
+                <div class="book-info">
+
+                    <span class="book-category">
+                        Technology
+                    </span>
+
+                    <h3>Design Patterns</h3>
+
+                    <p class="author">
+                        Erich Gamma
+                    </p>
+
+                    <div class="rating">
+                        ★★★★☆
+                        <span>4.6</span>
+                    </div>
+
+                    <div class="book-footer">
+
+                        <strong>$44.99</strong>
+
+                        <button class="cart-button">
+                            Add to Cart
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- PROMOTIONAL AD -->
+<section class="promo-section">
+    <div class="container">
+
+        <div class="promo-banner">
+
+            <div>
+                <span class="promo-label">
+                    LIMITED TIME
+                </span>
+
+                <h2>
+                    Buy 2 books,
+                    get the 3rd one 50% off.
+                </h2>
+
+                <p>
+                    Mix and match selected titles from our
+                    summer reading collection.
+                </p>
+
+                <a asp-page="/Products/Index"
+                   class="btn btn-light">
+                    Shop Campaign
+                </a>
+            </div>
+
+            <div class="promo-visual">
+                📚
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- PRODUCT SEARCH -->
+<section class="search-products-section">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-label">
+                    SEARCH
+                </span>
+
+                <h2>Find your next book</h2>
+            </div>
+
+        </div>
+
+
+        <form method="get"
+              asp-page="/Products/Index"
+              class="advanced-search">
+
+            <div class="search-field">
+
+                <label>
+                    Search by name
+                </label>
+
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Book title, author..." />
+
+            </div>
+
+
+            <div class="search-field">
+
+                <label>
+                    Minimum rating
+                </label>
+
+                <select name="rating"
+                        class="form-select">
+
+                    <option value="">
+                        Any rating
+                    </option>
+
+                    <option value="5">
+                        5 stars
+                    </option>
+
+                    <option value="4">
+                        4 stars & above
+                    </option>
+
+                    <option value="3">
+                        3 stars & above
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="search-field">
+
+                <label>
+                    Sort price
+                </label>
+
+                <select name="sort"
+                        class="form-select">
+
+                    <option value="">
+                        Default
+                    </option>
+
+                    <option value="price_asc">
+                        Price: Low to High
+                    </option>
+
+                    <option value="price_desc">
+                        Price: High to Low
+                    </option>
+
+                    <option value="rating_desc">
+                        Highest Rated
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="search-button-container">
+
+                <button type="submit"
+                        class="btn btn-dark">
+                    Search Books
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
