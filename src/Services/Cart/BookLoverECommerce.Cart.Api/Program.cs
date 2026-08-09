@@ -5,6 +5,7 @@ using BookLoverECommerce.Cart.Infrastructure;
 using BookLoverECommerce.Cart.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using BookLoverECommerce.Cart.Api.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,14 +41,18 @@ builder.Services
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
 
-                NameClaimType = ClaimTypes.Name,
+                NameClaimType = ClaimTypes.NameIdentifier,
                 RoleClaimType = ClaimTypes.Role
             };
     });
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<
+        BearerSecuritySchemeTransformer>();
+});
 
 
 builder.Services

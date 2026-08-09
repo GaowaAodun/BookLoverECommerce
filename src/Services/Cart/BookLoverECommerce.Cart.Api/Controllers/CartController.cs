@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookLoverECommerce.Cart.Api.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = "Customer")]
 [Route("api/cart/{userId}")]
 public class CartController : ControllerBase
 {
@@ -46,10 +46,49 @@ public class CartController : ControllerBase
             return Forbid();
         }
 
-        var cart = await _cartService.AddItemAsync(
+        CartResponse cart;
+
+        try
+        {
+            cart = await _cartService.AddItemAsync(
+                userId,
+                request,
+                cancellationToken);
+        }
+        catch (ArgumentOutOfRangeException exception)
+        {
+            return BadRequest(new
+            {
+                message = exception.Message
+            });
+        }
+
+        return Ok(cart);
+    }
+
+    [HttpPut("items")]
+    public async Task<ActionResult<CartResponse>> UpdateItem(
+        string userId,
+        UpdateCartItemRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!CanAccessCart(userId))
+        {
+            return Forbid();
+        }
+
+        var cart = await _cartService.UpdateItemAsync(
             userId,
             request,
             cancellationToken);
+
+        if (cart is null)
+        {
+            return NotFound(new
+            {
+                message = "Cart or product was not found."
+            });
+        }
 
         return Ok(cart);
     }

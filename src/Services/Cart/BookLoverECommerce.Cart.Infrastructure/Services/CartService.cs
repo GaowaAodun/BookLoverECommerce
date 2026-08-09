@@ -48,9 +48,49 @@ public class CartService : ICartService
         }
         else
         {
-            existingItem.Quantity += request.Quantity;
+            var newQuantity =
+                existingItem.Quantity + request.Quantity;
+
+            if (newQuantity > 100)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(request.Quantity),
+                    "The total quantity of a cart item cannot exceed 100.");
+            }
+
+            existingItem.Quantity = newQuantity;
         }
 
+        cart.UpdatedAt = DateTime.UtcNow;
+
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return Map(cart);
+    }
+
+    public async Task<CartResponse?> UpdateItemAsync(
+        string userId,
+        UpdateCartItemRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var cart = await _repository.GetByUserIdAsync(
+            userId,
+            cancellationToken);
+
+        if (cart is null)
+        {
+            return null;
+        }
+
+        var item = cart.Items.SingleOrDefault(
+            cartItem => cartItem.ProductId == request.ProductId);
+
+        if (item is null)
+        {
+            return null;
+        }
+
+        item.Quantity = request.Quantity;
         cart.UpdatedAt = DateTime.UtcNow;
 
         await _repository.SaveChangesAsync(cancellationToken);

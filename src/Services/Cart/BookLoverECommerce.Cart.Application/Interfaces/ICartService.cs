@@ -13,6 +13,11 @@ public interface ICartService
         AddCartItemRequest request,
         CancellationToken cancellationToken = default);
 
+    Task<CartResponse?> UpdateItemAsync(
+        string userId,
+        UpdateCartItemRequest request,
+        CancellationToken cancellationToken = default);
+
     Task<CartResponse?> RemoveItemAsync(
         string userId,
         RemoveCartItemRequest request,
