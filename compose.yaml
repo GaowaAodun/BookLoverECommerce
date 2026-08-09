@@ -327,6 +327,7 @@ services:
   # API GATEWAY
   # =========================================================
   api-gateway:
+    container_name: booklover-api-gateway
     build:
       context: .
       dockerfile: src/ApiGateway/BookLoverECommerce.ApiGateway/Dockerfile
@@ -366,6 +367,30 @@ services:
 
     networks:
       - booklover-network
+  
+  cms:
+    container_name: booklover-cms
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Web/BookLoverECommerce.Cms/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+      ApiGateway__BaseUrl: http://api-gateway:8080
+
+    ports:
+      - "5100:8080"
+
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
 
 # =========================================================
 # PERSISTENT VOLUMES
