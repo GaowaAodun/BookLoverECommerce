@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - BookLover</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+
+            <div class="container">
+
+                <a class="navbar-brand brand-logo"
+                   asp-page="/Index">
+                    BookLover
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
+
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse"
+                     id="mainNavbar">
+
+                    <ul class="navbar-nav me-3">
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-page="/Index">
+                                Home
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-page="/Products/Index">
+                                Products
+                            </a>
+                        </li>
+
+                    </ul>
+
+
+                    <form method="get"
+                          asp-page="/Products/Index"
+                          class="navbar-search me-auto">
+
+                        <input type="search"
+                               name="search"
+                               placeholder="Search books..."
+                               aria-label="Search books" />
+
+                        <button type="submit">
+                            Search
+                        </button>
+
+                    </form>
+
+
+                    <ul class="navbar-nav align-items-lg-center">
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-page="/Orders/Index">
+                                    Orders
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-page="/Cart/Index">
+                                    Cart
+                                </a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   data-bs-toggle="dropdown">
+                                    Profile
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+                                        <span class="dropdown-item-text">
+                                            @User.Identity.Name
+                                        </span>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+
+                                    <li>
+                                        <form method="post"
+                                              asp-page="/Account/Logout">
+
+                                            <button type="submit"
+                                                    class="dropdown-item">
+                                                Logout
+                                            </button>
+
+                                        </form>
+                                    </li>
+
+                                </ul>
+
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-page="/Account/Login">
+                                    SignIn
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="btn btn-dark ms-lg-2"
+                                   asp-page="/Account/Register">
+                                    Register
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </nav>
+    </header>
+
+
+    <main>
+        @RenderBody()
+    </main>
+
+
+    <footer class="border-top mt-5">
+        <div class="container py-4 text-muted">
+            &copy; 2026 BookLoverECommerce
+        </div>
+    </footer>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
+
+</body>
+</html>
