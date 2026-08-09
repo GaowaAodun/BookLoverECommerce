@@ -25,6 +25,58 @@ public sealed class CategoryRepository : ICategoryRepository
             cancellationToken);
     }
 
+    public Task<bool> NameExistsAsync(
+        string name,
+        int? excludingCategoryId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedName = name.Trim().ToUpper();
+
+        return _dbContext.Categories.AnyAsync(
+            category =>
+                category.Name.ToUpper() == normalizedName &&
+                (!excludingCategoryId.HasValue ||
+                 category.Id != excludingCategoryId.Value),
+            cancellationToken);
+    }
+
+    public Task<bool> HasProductsAsync(
+        int categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Products.AnyAsync(
+            product => product.CategoryId == categoryId,
+            cancellationToken);
+    }
+
+    public Task<bool> HasChildCategoriesAsync(
+        int categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Categories.AnyAsync(
+            category => category.ParentCategoryId == categoryId,
+            cancellationToken);
+    }
+
+    public Task<Category?> GetByIdAsync(
+        int categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Categories.SingleOrDefaultAsync(
+            category => category.Id == categoryId,
+            cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Category>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Categories
+            .AsNoTracking()
+            .OrderBy(category => category.DisplayOrder)
+            .ThenBy(category => category.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Category>> GetActiveAsync(
         CancellationToken cancellationToken = default)
     {
@@ -34,5 +86,25 @@ public sealed class CategoryRepository : ICategoryRepository
             .OrderBy(category => category.DisplayOrder)
             .ThenBy(category => category.Name)
             .ToListAsync(cancellationToken);
+    }
+
+    public Task AddAsync(
+        Category category,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Categories
+            .AddAsync(category, cancellationToken)
+            .AsTask();
+    }
+
+    public void Remove(Category category)
+    {
+        _dbContext.Categories.Remove(category);
+    }
+
+    public Task SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

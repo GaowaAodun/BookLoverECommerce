@@ -1,6 +1,6 @@
-namespace BookLoverECommerce.Products.Application.DTOs;
+namespace BookLoverECommerce.Cms.Models.Categories;
 
-public sealed record CategoryDto(
+public sealed record CategoryResponse(
     int Id,
     string Name,
     string? Description,
