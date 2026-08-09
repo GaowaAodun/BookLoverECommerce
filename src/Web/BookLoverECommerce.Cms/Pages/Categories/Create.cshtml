@@ -1,0 +1,136 @@
+@page
+@model BookLoverECommerce.Cms.Pages.Categories.CreateModel
+
+@{
+    ViewData["Title"] = "Add Category";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a asp-page="/Categories/Index"
+               class="btn btn-outline-secondary">
+                Back
+            </a>
+
+            <div>
+                <h1 class="h2 mb-1">Add category</h1>
+                <p class="text-muted mb-0">
+                    Create a new category for organizing products.
+                </p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h2 class="h5 mb-0">Category details</h2>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Name"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <input asp-for="Input.Name"
+                               class="form-control"
+                               placeholder="For example, Fiction"
+                               autofocus />
+
+                        <span asp-validation-for="Input.Name"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Description"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <textarea asp-for="Input.Description"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Optional description"></textarea>
+
+                        <div class="form-text">
+                            Briefly explain what products belong here.
+                        </div>
+
+                        <span asp-validation-for="Input.Description"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="Input.ParentCategoryId"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <select asp-for="Input.ParentCategoryId"
+                                    asp-items="Model.ParentCategoryOptions"
+                                    class="form-select">
+                                <option value="">
+                                    No parent — root category
+                                </option>
+                            </select>
+
+                            <div class="form-text">
+                                Select a parent only when creating a subcategory.
+                            </div>
+
+                            <span asp-validation-for=
+                                      "Input.ParentCategoryId"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="Input.DisplayOrder"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Input.DisplayOrder"
+                                   class="form-control"
+                                   type="number"
+                                   min="0"
+                                   max="9999" />
+
+                            <div class="form-text">
+                                Lower numbers appear first.
+                            </div>
+
+                            <span asp-validation-for="Input.DisplayOrder"
+                                  class="text-danger">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3
+                                border-top">
+                        <a asp-page="/Categories/Index"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Create category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
