@@ -34,7 +34,6 @@ public sealed class ProductsController : ControllerBase
     [ProducesResponseType<IReadOnlyList<ProductDto>>(
         StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetProducts(
         [FromQuery] string? productIds,
         CancellationToken cancellationToken)
@@ -66,7 +65,7 @@ public sealed class ProductsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ProductDto>> GetById(
         Guid id,
         CancellationToken cancellationToken)

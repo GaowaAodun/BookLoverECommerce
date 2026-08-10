@@ -1,0 +1,6 @@
+@BookLoverECommerce.Order.Api_HostAddress = http://localhost:5241
+
+# GET {{BookLoverECommerce.Order.Api_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+###
