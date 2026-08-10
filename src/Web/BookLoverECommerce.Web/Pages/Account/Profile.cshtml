@@ -1,0 +1,270 @@
+@page
+@model BookLoverECommerce.Web.Pages.Account.ProfileModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<section class="profile-page">
+
+    <div class="container">
+
+        <div class="profile-header">
+
+            <div>
+                <span class="section-label">
+                    MY ACCOUNT
+                </span>
+
+                <h1>
+                    My Profile
+                </h1>
+
+                <p>
+                    Manage your personal information,
+                    security settings and profile picture.
+                </p>
+            </div>
+
+        </div>
+
+
+        @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">
+                @Model.SuccessMessage
+            </div>
+        }
+
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+
+
+        @if (Model.Profile is not null)
+        {
+            <div class="profile-layout">
+
+
+                <!-- PROFILE PHOTO CARD -->
+
+                <aside class="profile-card">
+
+                    <div class="profile-avatar">
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            Model.ProfileImageUrl))
+                        {
+                            <img src="@Model.ProfileImageUrl"
+                                 alt="Profile picture" />
+                        }
+                        else
+                        {
+                            <div class="profile-avatar-placeholder">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    Model.Profile.FullName))
+                                {
+                                    @char.ToUpper(
+                                        Model.Profile.FullName[0])
+                                }
+                                else
+                                {
+                                    <span>👤</span>
+                                }
+
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <h2>
+                        @Model.Profile.FullName
+                    </h2>
+
+                 <p class="profile-username">
+                       @@ @Model.Profile.Username
+                    </p>
+
+                    <p class="profile-email">
+                        @Model.Profile.Email
+                    </p>
+
+
+                    <!-- IMAGE UPLOAD -->
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          asp-page-handler="UploadImage"
+                          class="profile-upload-form">
+
+                        <label asp-for="ProfileImage"
+                               class="form-label">
+                            Profile picture
+                        </label>
+
+                        <input asp-for="ProfileImage"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                               class="form-control" />
+
+                        <small>
+                            JPG, PNG or WEBP. Maximum 5 MB.
+                        </small>
+
+                        <button type="submit"
+                                class="btn btn-dark w-100">
+                            Upload Picture
+                        </button>
+
+                    </form>
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.ProfileImageUrl))
+                    {
+                        <form method="post"
+                              asp-page-handler="RemoveImage"
+                              class="mt-3">
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger w-100">
+                                Remove Picture
+                            </button>
+
+                        </form>
+                    }
+
+                </aside>
+
+
+                <!-- ACCOUNT INFORMATION -->
+
+                <main class="profile-details-card">
+
+                    <div class="profile-section-header">
+
+                        <div>
+                            <span class="section-label">
+                                PERSONAL INFORMATION
+                            </span>
+
+                            <h2>
+                                Account Details
+                            </h2>
+                        </div>
+
+
+                        <a asp-page="/Account/EditProfile"
+                           class="btn btn-dark">
+                            Edit Profile
+                        </a>
+
+                    </div>
+
+
+                    <div class="profile-info-grid">
+
+                        <div class="profile-info-item">
+                            <span>
+                                Full Name
+                            </span>
+
+                            <strong>
+                                @Model.Profile.FullName
+                            </strong>
+                        </div>
+
+
+                        <div class="profile-info-item">
+                            <span>
+                                Username
+                            </span>
+
+                            <strong>
+                                @Model.Profile.Username
+                            </strong>
+                        </div>
+
+
+                        <div class="profile-info-item">
+                            <span>
+                                Email
+                            </span>
+
+                            <strong>
+                                @Model.Profile.Email
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="profile-security-section">
+
+                        <span class="section-label">
+                            ACCOUNT SECURITY
+                        </span>
+
+                        <h2>
+                            Security & Sign In
+                        </h2>
+
+
+                        <div class="profile-actions">
+
+                            <a asp-page="/Account/ChangeEmail"
+                               class="profile-action-link">
+
+                                <div>
+                                    <strong>
+                                        Change Email
+                                    </strong>
+
+                                    <span>
+                                        Update the email used for your account
+                                    </span>
+                                </div>
+
+                                <span>
+                                    →
+                                </span>
+
+                            </a>
+
+
+                            <a asp-page="/Account/ChangePassword"
+                               class="profile-action-link">
+
+                                <div>
+                                    <strong>
+                                        Change Password
+                                    </strong>
+
+                                    <span>
+                                        Choose a new account password
+                                    </span>
+                                </div>
+
+                                <span>
+                                    →
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </main>
+
+            </div>
+        }
+
+    </div>
+
+</section>

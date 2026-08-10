@@ -1,11 +1,7 @@
-namespace BookLoverECommerce.Cms.Models;
+namespace BookLoverECommerce.Auth.Application.DTOs;
 
-public class AuthResponse
+public sealed class ProfileResponse
 {
-    public string Token { get; set; } = string.Empty;
-
-    public DateTime ExpiresAt { get; set; }
-
     public string UserId { get; set; } = string.Empty;
 
     public string Username { get; set; } = string.Empty;

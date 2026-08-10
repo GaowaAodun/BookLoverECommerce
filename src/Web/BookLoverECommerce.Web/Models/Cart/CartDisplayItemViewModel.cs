@@ -2,7 +2,7 @@ namespace BookLoverECommerce.Web.Models.Cart;
 
 public sealed class CartDisplayItemViewModel
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
 
     public string Title { get; set; } =
         string.Empty;

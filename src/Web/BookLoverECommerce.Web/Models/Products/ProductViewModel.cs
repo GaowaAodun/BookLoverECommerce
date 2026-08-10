@@ -2,7 +2,7 @@ namespace BookLoverECommerce.Web.Models.Products;
 
 public sealed class ProductViewModel
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string Title { get; set; } = string.Empty;
 

@@ -6,6 +6,41 @@
 }
 
 <section class="product-page">
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div id="cartToast"
+         class="cart-toast">
+
+        <div class="cart-toast-icon">
+            ✓
+        </div>
+
+        <div class="cart-toast-content">
+
+            <strong>
+                Added to your cart
+            </strong>
+
+            <span>
+                @successMessage
+            </span>
+
+            <a asp-page="/Cart/Index">
+                View Cart →
+            </a>
+
+        </div>
+
+        <button type="button"
+                class="cart-toast-close"
+                onclick="closeCartToast()">
+
+            ×
+
+        </button>
+
+    </div>
+}
 
     <div class="container">
 
@@ -381,5 +416,44 @@
         }
 
     </div>
+    @section Scripts
+{
+    <script>
+
+        function closeCartToast() {
+
+            const toast =
+                document.getElementById(
+                    "cartToast");
+
+            if (toast) {
+
+                toast.classList.add(
+                    "cart-toast-hide");
+
+                setTimeout(() => {
+
+                    toast.remove();
+
+                }, 250);
+            }
+        }
+
+
+        const cartToast =
+            document.getElementById(
+                "cartToast");
+
+        if (cartToast) {
+
+            setTimeout(() => {
+
+                closeCartToast();
+
+            }, 5000);
+        }
+
+    </script>
+}
 
 </section>

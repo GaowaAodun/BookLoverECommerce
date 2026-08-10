@@ -1,0 +1,106 @@
+@page
+@model BookLoverECommerce.Web.Pages.Account.ChangeEmailModel
+
+@{
+    ViewData["Title"] = "Change Email";
+}
+
+<section class="account-form-page">
+
+    <div class="container">
+
+        <div class="account-form-card">
+
+            <div class="account-form-header">
+
+                <span class="section-label">
+                    ACCOUNT SECURITY
+                </span>
+
+                <h1>
+                    Change Email
+                </h1>
+
+                <p>
+                    Update the email address associated with your account.
+                </p>
+
+            </div>
+
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+
+            @if (!string.IsNullOrWhiteSpace(Model.CurrentEmail))
+            {
+                <div class="current-account-value">
+
+                    <span>
+                        Current email
+                    </span>
+
+                    <strong>
+                        @Model.CurrentEmail
+                    </strong>
+
+                </div>
+            }
+
+
+            <form method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+
+                <div class="mb-4">
+
+                    <label asp-for="Input.NewEmail"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Input.NewEmail"
+                           class="form-control form-control-lg"
+                           autocomplete="email"
+                           placeholder="Enter your new email" />
+
+                    <span asp-validation-for="Input.NewEmail"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="account-form-actions">
+
+                    <a asp-page="/Account/Profile"
+                       class="btn btn-outline-dark btn-lg">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-dark btn-lg">
+                        Update Email
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

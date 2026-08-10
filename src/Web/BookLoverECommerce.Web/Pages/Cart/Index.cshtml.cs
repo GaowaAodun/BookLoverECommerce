@@ -81,7 +81,7 @@ public sealed class IndexModel : PageModel
     // =====================================
 
     public async Task<IActionResult> OnPostAddAsync(
-        int productId,
+        Guid productId,
         int quantity,
         string? returnUrl,
         CancellationToken cancellationToken)
@@ -108,7 +108,7 @@ public sealed class IndexModel : PageModel
                 cancellationToken);
 
             SuccessMessage =
-                "Product added to your cart.";
+                "Product added to your cart successfully.";
 
             if (!string.IsNullOrWhiteSpace(returnUrl)
                 &&
@@ -131,6 +131,60 @@ public sealed class IndexModel : PageModel
             return Page();
         }
     }
+    public async Task<IActionResult> OnPostCheckoutAsync(
+    List<Guid> selectedProductIds,
+    CancellationToken cancellationToken)
+{
+    var userId = GetCurrentUserId();
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Challenge();
+    }
+
+    if (selectedProductIds is null ||
+        selectedProductIds.Count == 0)
+    {
+        ErrorMessage =
+            "Please select at least one product before continuing.";
+
+        await ReloadEverythingAsync(
+            userId,
+            cancellationToken);
+
+        return Page();
+    }
+
+
+    // Remove duplicated IDs if any.
+    selectedProductIds =
+        selectedProductIds
+            .Distinct()
+            .ToList();
+
+
+    /*
+     * NEXT PHASE:
+     *
+     * These IDs are the products that the
+     * customer wants to purchase right now.
+     *
+     * Later we will:
+     *
+     * 1. Get selected cart items
+     * 2. Send them to Price API
+     * 3. Calculate final total
+     * 4. Create Checkout/Order page
+     *
+     */
+
+
+    TempData["SuccessMessage"] =
+        $"{selectedProductIds.Count} product(s) selected for checkout.";
+
+
+    return RedirectToPage("/Cart/Index");
+}
 
 
     // =====================================
@@ -138,7 +192,7 @@ public sealed class IndexModel : PageModel
     // =====================================
 
     public async Task<IActionResult> OnPostUpdateAsync(
-        int productId,
+        Guid productId,
         int quantity,
         CancellationToken cancellationToken)
     {
@@ -187,7 +241,7 @@ public sealed class IndexModel : PageModel
     // =====================================
 
     public async Task<IActionResult> OnPostRemoveAsync(
-        int productId,
+        Guid productId,
         CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();

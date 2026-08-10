@@ -42,6 +42,7 @@ public static class DependencyInjection
             })
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AuthDbContext>();
+            
 
             services.Configure<JwtSettings>(
     configuration.GetSection(

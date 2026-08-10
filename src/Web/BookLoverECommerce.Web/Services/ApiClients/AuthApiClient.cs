@@ -130,4 +130,126 @@ public sealed class AuthApiClient : IAuthApiClient
         ?? throw new InvalidOperationException(
             "Authentication response was empty.");
 }
+public async Task<ProfileResponse?> GetProfileAsync(
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayAuthorized");
+
+    using var response =
+        await client.GetAsync(
+            "/api/auth/profile",
+            cancellationToken);
+
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Get profile failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
+    }
+
+    return System.Text.Json.JsonSerializer
+        .Deserialize<ProfileResponse>(
+            responseBody,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+}
+public async Task<ProfileResponse?> UpdateProfileAsync(
+    UpdateProfileRequest request,
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayAuthorized");
+
+    using var response =
+        await client.PutAsJsonAsync(
+            "/api/auth/profile",
+            request,
+            cancellationToken);
+
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Update profile failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
+    }
+
+    return System.Text.Json.JsonSerializer
+        .Deserialize<ProfileResponse>(
+            responseBody,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+}
+public async Task ChangeEmailAsync(
+    ChangeEmailRequest request,
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayAuthorized");
+
+    using var response =
+        await client.PutAsJsonAsync(
+            "/api/auth/profile/email",
+            request,
+            cancellationToken);
+
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Email update failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
+    }
+}
+public async Task ChangePasswordAsync(
+    ChangePasswordRequest request,
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayAuthorized");
+
+    using var response =
+        await client.PutAsJsonAsync(
+            "/api/auth/profile/password",
+            request,
+            cancellationToken);
+
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Password update failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
+    }
+}
 }

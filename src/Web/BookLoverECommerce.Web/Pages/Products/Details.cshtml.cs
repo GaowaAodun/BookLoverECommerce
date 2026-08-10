@@ -20,8 +20,8 @@ public sealed class DetailsModel : PageModel
     public string? ErrorMessage { get; private set; }
 
     public async Task<IActionResult> OnGetAsync(
-        int id,
-        CancellationToken cancellationToken)
+    Guid id,
+    CancellationToken cancellationToken)
     {
         try
         {
