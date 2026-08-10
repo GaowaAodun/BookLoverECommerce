@@ -263,4 +263,38 @@ public class AuthController : ControllerBase
             });
         }
     }
+    [HttpPost("forgot-password")]
+public async Task<ActionResult<ForgotPasswordResponse>>
+    ForgotPassword(
+        ForgotPasswordRequest request)
+{
+    var response =
+        await _authService.ForgotPasswordAsync(
+            request);
+
+    return Ok(response);
+}
+[HttpPost("reset-password")]
+public async Task<IActionResult> ResetPassword(
+    ResetPasswordRequest request)
+{
+    try
+    {
+        await _authService.ResetPasswordAsync(
+            request);
+
+        return Ok(new
+        {
+            message =
+                "Your password has been reset successfully."
+        });
+    }
+    catch (AuthException exception)
+    {
+        return BadRequest(new
+        {
+            message = exception.Message
+        });
+    }
+}
 }

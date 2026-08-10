@@ -324,4 +324,80 @@ public async Task ChangePasswordAsync(
             $"Password update failed: {errors}");
     }
 }
+public async Task<ForgotPasswordResponse> ForgotPasswordAsync(
+    ForgotPasswordRequest request)
+{
+    var email =
+        request.Email
+            .Trim()
+            .ToLowerInvariant();
+
+    var user =
+        await _userManager.FindByEmailAsync(
+            email);
+
+    // Important:
+    // Do not reveal whether an account exists.
+    if (user is null)
+    {
+        return new ForgotPasswordResponse
+        {
+            Message =
+                "If an account exists for this email, " +
+                "password reset instructions have been generated."
+        };
+    }
+
+    var resetToken =
+        await _userManager
+            .GeneratePasswordResetTokenAsync(
+                user);
+
+    return new ForgotPasswordResponse
+    {
+        Message =
+            "If an account exists for this email, " +
+            "password reset instructions have been generated.",
+
+        ResetToken =
+            resetToken
+    };
+}
+public async Task ResetPasswordAsync(
+    ResetPasswordRequest request)
+{
+    var email =
+        request.Email
+            .Trim()
+            .ToLowerInvariant();
+
+    var user =
+        await _userManager.FindByEmailAsync(
+            email);
+
+    if (user is null)
+    {
+        throw new AuthException(
+            "The password reset request is invalid.");
+    }
+
+    var result =
+        await _userManager.ResetPasswordAsync(
+            user,
+            request.Token,
+            request.NewPassword);
+
+    if (!result.Succeeded)
+    {
+        var errors =
+            string.Join(
+                "; ",
+                result.Errors.Select(
+                    error =>
+                        error.Description));
+
+        throw new AuthException(
+            $"Password reset failed: {errors}");
+    }
+}
 }

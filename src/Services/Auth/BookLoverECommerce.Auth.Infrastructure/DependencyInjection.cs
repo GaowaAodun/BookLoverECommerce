@@ -41,7 +41,8 @@ public static class DependencyInjection
                     TimeSpan.FromMinutes(5);
             })
             .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<AuthDbContext>();
+            .AddEntityFrameworkStores<AuthDbContext>()
+             .AddDefaultTokenProviders();
             
 
             services.Configure<JwtSettings>(

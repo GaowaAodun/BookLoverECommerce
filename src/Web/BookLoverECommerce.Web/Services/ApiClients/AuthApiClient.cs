@@ -252,4 +252,67 @@ public async Task ChangePasswordAsync(
             $"Response: {responseBody}");
     }
 }
+public async Task<ForgotPasswordResponse> ForgotPasswordAsync(
+    ForgotPasswordRequest request,
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayPublic");
+
+    using var response =
+        await client.PostAsJsonAsync(
+            "/api/auth/forgot-password",
+            request,
+            cancellationToken);
+
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Forgot password request failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
+    }
+
+    return System.Text.Json.JsonSerializer
+        .Deserialize<ForgotPasswordResponse>(
+            responseBody,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            })
+        ?? new ForgotPasswordResponse();
+}
+public async Task ResetPasswordAsync(
+    ResetPasswordRequest request,
+    CancellationToken cancellationToken = default)
+{
+    var client =
+        _httpClientFactory.CreateClient(
+            "GatewayPublic");
+
+    using var response =
+        await client.PostAsJsonAsync(
+            "/api/auth/reset-password",
+            request,
+            cancellationToken);
+
+    var responseBody =
+        await response.Content.ReadAsStringAsync(
+            cancellationToken);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException(
+            $"Password reset failed. " +
+            $"Status: {(int)response.StatusCode} " +
+            $"{response.StatusCode}. " +
+            $"Response: {responseBody}");
+    }
+}
 }

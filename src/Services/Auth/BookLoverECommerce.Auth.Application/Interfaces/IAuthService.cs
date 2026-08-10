@@ -24,4 +24,9 @@ public interface IAuthService
     Task ChangePasswordAsync(
         string userId,
         ChangePasswordRequest request);
+        Task<ForgotPasswordResponse> ForgotPasswordAsync(
+    ForgotPasswordRequest request);
+
+Task ResetPasswordAsync(
+    ResetPasswordRequest request);
 }
