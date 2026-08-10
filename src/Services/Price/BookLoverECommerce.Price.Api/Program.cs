@@ -30,41 +30,94 @@ builder.Services.AddPriceInfrastructure(
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<PriceDbContext>();
 
-var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+var jwtIssuer =
+    builder.Configuration["Jwt:Issuer"]
     ?? throw new InvalidOperationException(
         "JWT issuer is not configured.");
 
-var jwtAudience = builder.Configuration["Jwt:Audience"]
+var jwtAudience =
+    builder.Configuration["Jwt:Audience"]
     ?? throw new InvalidOperationException(
         "JWT audience is not configured.");
 
-var jwtKey = builder.Configuration["Jwt:Key"]
+var jwtKey =
+    builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException(
         "JWT key is not configured.");
 
+var signingKey =
+    new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(
+        JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters =
             new TokenValidationParameters
             {
+                ValidateIssuerSigningKey = true,
+
+                IssuerSigningKey =
+                    signingKey,
+
+                // Explicitly try the configured key
+                // when JWT does not contain a kid.
+                TryAllIssuerSigningKeys = true,
+
+                IssuerSigningKeyResolver =
+                    (
+                        token,
+                        securityToken,
+                        kid,
+                        validationParameters) =>
+                    {
+                        return new[]
+                        {
+                            signingKey
+                        };
+                    },
+
                 ValidateIssuer = true,
                 ValidIssuer = jwtIssuer,
 
                 ValidateAudience = true,
                 ValidAudience = jwtAudience,
 
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtKey)),
-
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(1),
+                ClockSkew = TimeSpan.Zero,
 
-                NameClaimType = ClaimTypes.NameIdentifier,
-                RoleClaimType = ClaimTypes.Role
+                NameClaimType =
+                    ClaimTypes.NameIdentifier,
+
+                RoleClaimType =
+                    ClaimTypes.Role
+            };
+
+        // Temporary diagnostics
+        options.Events =
+            new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    Console.WriteLine(
+                        $"PRICE JWT AUTH FAILED: " +
+                        $"{context.Exception.GetType().Name} - " +
+                        $"{context.Exception.Message}");
+
+                    return Task.CompletedTask;
+                },
+
+                OnChallenge = context =>
+                {
+                    Console.WriteLine(
+                        $"PRICE JWT CHALLENGE: " +
+                        $"Error={context.Error}; " +
+                        $"Description={context.ErrorDescription}");
+
+                    return Task.CompletedTask;
+                }
             };
     });
 

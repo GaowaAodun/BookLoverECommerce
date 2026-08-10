@@ -1,0 +1,418 @@
+@page
+@model BookLoverECommerce.Web.Pages.Checkout.IndexModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<section class="checkout-page">
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+        <div class="checkout-header">
+
+            <div>
+
+                <span class="section-label">
+                    SECURE CHECKOUT
+                </span>
+
+                <h1>
+                    Review Your Order
+                </h1>
+
+                <p>
+                    Confirm your selected products and final prices
+                    before placing your order.
+                </p>
+
+            </div>
+
+
+            <a asp-page="/Cart/Index"
+               class="btn btn-outline-dark">
+
+                ← Back to Cart
+
+            </a>
+
+        </div>
+
+
+        <!-- ERROR -->
+        @if (!string.IsNullOrWhiteSpace(
+            Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+
+
+        @if (Model.Checkout.Items.Count > 0)
+        {
+            <div class="checkout-layout">
+
+
+                <!-- ===========================
+                     ORDER ITEMS
+                ============================ -->
+
+                <main class="checkout-items-section">
+
+
+                    <div class="checkout-section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                YOUR ITEMS
+                            </span>
+
+                            <h2>
+                                Selected Products
+                            </h2>
+
+                        </div>
+
+
+                        <span class="checkout-count">
+
+                            @Model.Checkout.TotalQuantity
+                            item@(Model.Checkout.TotalQuantity == 1 ? "" : "s")
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="checkout-products-list">
+
+                        @foreach (var item in Model.Checkout.Items)
+                        {
+                            <article class="checkout-product-card">
+
+
+                                <!-- IMAGE -->
+
+                                <div class="checkout-product-image">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl"
+                                             alt="@item.ProductName" />
+                                    }
+                                    else
+                                    {
+                                        <div class="checkout-product-placeholder">
+                                            📖
+                                        </div>
+                                    }
+
+                                </div>
+
+
+                                <!-- PRODUCT DETAILS -->
+
+                                <div class="checkout-product-info">
+
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        item.Category))
+                                    {
+                                        <span class="checkout-product-category">
+                                            @item.Category
+                                        </span>
+                                    }
+
+
+                                    <h3>
+                                        @item.ProductName
+                                    </h3>
+
+
+                                    @if (item.IsSaleActive)
+                                    {
+                                        <span class="checkout-sale-badge">
+                                            Sale Price
+                                        </span>
+                                    }
+
+
+                                    <div class="checkout-product-meta">
+
+                                        <span>
+                                            Quantity:
+                                            <strong>
+                                                @item.Quantity
+                                            </strong>
+                                        </span>
+
+                                        <span>
+                                            Price each:
+                                            <strong>
+                                                @item.UnitPrice.ToString("C")
+                                            </strong>
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- LINE TOTAL -->
+
+                                <div class="checkout-product-total">
+
+                                    <span>
+                                        Item total
+                                    </span>
+
+                                    <strong>
+                                        @item.LineTotal.ToString("C")
+                                    </strong>
+
+                                </div>
+
+                            </article>
+                        }
+
+                    </div>
+
+
+                    <!-- CUSTOMER INFORMATION -->
+
+                    <section class="checkout-customer-card">
+
+                        <div class="checkout-section-heading">
+
+                            <div>
+
+                                <span class="section-label">
+                                    CUSTOMER
+                                </span>
+
+                                <h2>
+                                    Account Information
+                                </h2>
+
+                            </div>
+
+
+                            <a asp-page="/Account/Profile"
+                               class="checkout-edit-link">
+
+                                Edit Profile →
+
+                            </a>
+
+                        </div>
+
+
+                        <div class="checkout-customer-grid">
+
+
+                            <div class="checkout-customer-item">
+
+                                <span>
+                                    Customer
+                                </span>
+
+                                <strong>
+                                    @User.Identity?.Name
+                                </strong>
+
+                            </div>
+
+
+                            <div class="checkout-customer-item">
+
+                                <span>
+                                    Email
+                                </span>
+
+                                <strong>
+                                    @User.FindFirst(
+                                        System.Security.Claims
+                                            .ClaimTypes.Email)
+                                        ?.Value
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </main>
+
+
+                <!-- ===========================
+                     ORDER SUMMARY
+                ============================ -->
+
+                <aside class="checkout-summary-card">
+
+
+                    <span class="section-label">
+                        ORDER SUMMARY
+                    </span>
+
+
+                    <h2>
+                        Your Total
+                    </h2>
+
+
+                    <!-- PRODUCT COUNT -->
+
+                    <div class="checkout-summary-row">
+
+                        <span>
+                            Items
+                        </span>
+
+                        <strong>
+                            @Model.Checkout.TotalQuantity
+                        </strong>
+
+                    </div>
+
+
+                    <!-- SUBTOTAL -->
+
+                    <div class="checkout-summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            @Model.Checkout.Subtotal.ToString("C")
+                        </strong>
+
+                    </div>
+
+
+                    <!-- SHIPPING -->
+
+                    <div class="checkout-summary-row">
+
+                        <span>
+                            Shipping
+                        </span>
+
+                        @if (Model.Checkout.Shipping == 0)
+                        {
+                            <strong class="checkout-free">
+                                Free
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong>
+                                @Model.Checkout.Shipping.ToString("C")
+                            </strong>
+                        }
+
+                    </div>
+
+
+                    <hr class="checkout-divider" />
+
+
+                    <!-- TOTAL -->
+
+                    <div class="checkout-total-row">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong>
+                            @Model.Checkout.Total.ToString("C")
+                        </strong>
+
+                    </div>
+
+
+                    <div class="checkout-currency">
+
+                        Prices shown in
+                        <strong>
+                            @Model.Checkout.Currency
+                        </strong>
+
+                    </div>
+
+
+                    <!-- PLACE ORDER -->
+
+                    <form method="post"
+                          asp-page-handler="PlaceOrder">
+
+                        <input type="hidden"
+                               name="productIds"
+                               value="@Model.ProductIds" />
+
+
+                        <button type="submit"
+                                class="btn btn-dark btn-lg w-100 checkout-place-order-button">
+
+                            Place Order
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- SAFETY INFORMATION -->
+
+                    <div class="checkout-benefits">
+
+                        <div>
+                            <span>✓</span>
+
+                            <p>
+                                Prices verified by Price API
+                            </p>
+                        </div>
+
+
+                        <div>
+                            <span>✓</span>
+
+                            <p>
+                                Only selected cart items included
+                            </p>
+                        </div>
+
+
+                        <div>
+                            <span>✓</span>
+
+                            <p>
+                                Secure authenticated checkout
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <p class="checkout-note">
+
+                        Your cart will not be modified until
+                        the order has been successfully created.
+
+                    </p>
+
+                </aside>
+
+            </div>
+        }
+
+    </div>
+
+</section>

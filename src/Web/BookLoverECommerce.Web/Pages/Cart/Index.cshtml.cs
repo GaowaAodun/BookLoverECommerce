@@ -131,59 +131,29 @@ public sealed class IndexModel : PageModel
             return Page();
         }
     }
-    public async Task<IActionResult> OnPostCheckoutAsync(
-    List<Guid> selectedProductIds,
-    CancellationToken cancellationToken)
+    public IActionResult OnPostCheckout(
+    List<Guid> selectedProductIds)
 {
-    var userId = GetCurrentUserId();
-
-    if (string.IsNullOrWhiteSpace(userId))
-    {
-        return Challenge();
-    }
-
     if (selectedProductIds is null ||
         selectedProductIds.Count == 0)
     {
-        ErrorMessage =
-            "Please select at least one product before continuing.";
+        TempData["ErrorMessage"] =
+            "Please select at least one product.";
 
-        await ReloadEverythingAsync(
-            userId,
-            cancellationToken);
-
-        return Page();
+        return RedirectToPage();
     }
 
+    var productIds =
+        string.Join(
+            ",",
+            selectedProductIds);
 
-    // Remove duplicated IDs if any.
-    selectedProductIds =
-        selectedProductIds
-            .Distinct()
-            .ToList();
-
-
-    /*
-     * NEXT PHASE:
-     *
-     * These IDs are the products that the
-     * customer wants to purchase right now.
-     *
-     * Later we will:
-     *
-     * 1. Get selected cart items
-     * 2. Send them to Price API
-     * 3. Calculate final total
-     * 4. Create Checkout/Order page
-     *
-     */
-
-
-    TempData["SuccessMessage"] =
-        $"{selectedProductIds.Count} product(s) selected for checkout.";
-
-
-    return RedirectToPage("/Cart/Index");
+    return RedirectToPage(
+        "/Checkout/Index",
+        new
+        {
+            productIds
+        });
 }
 
 

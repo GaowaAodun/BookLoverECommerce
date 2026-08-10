@@ -9,9 +9,9 @@
 
     <div class="container">
 
-        <!-- ==============================
+        <!-- =========================================
              PAGE HEADER
-        =============================== -->
+        ========================================== -->
 
         <div class="cart-page-header">
 
@@ -20,7 +20,9 @@
                     YOUR SHOPPING BAG
                 </span>
 
-                <h1>My Cart</h1>
+                <h1>
+                    My Cart
+                </h1>
 
                 <p>
                     Choose the products you want to purchase now,
@@ -38,33 +40,37 @@
         </div>
 
 
-        <!-- ==============================
+        <!-- =========================================
              SUCCESS MESSAGE
-        =============================== -->
+        ========================================== -->
 
         @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
         {
             <div class="alert alert-success cart-message">
+
                 ✓ @Model.SuccessMessage
+
             </div>
         }
 
 
-        <!-- ==============================
+        <!-- =========================================
              ERROR MESSAGE
-        =============================== -->
+        ========================================== -->
 
         @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
         {
             <div class="alert alert-danger cart-message">
+
                 @Model.ErrorMessage
+
             </div>
         }
 
 
-        <!-- ==============================
+        <!-- =========================================
              EMPTY CART
-        =============================== -->
+        ========================================== -->
 
         @if (Model.DisplayItems.Count == 0)
         {
@@ -74,7 +80,9 @@
                     🛒
                 </div>
 
-                <h2>Your cart is empty</h2>
+                <h2>
+                    Your cart is empty
+                </h2>
 
                 <p>
                     You haven't added anything yet.
@@ -92,6 +100,10 @@
         }
         else
         {
+            <!-- =========================================
+                 SELECTION TOOLBAR
+            ========================================== -->
+
             <div class="cart-selection-toolbar">
 
                 <div class="cart-select-all">
@@ -106,18 +118,28 @@
 
                 </div>
 
+
                 <span class="cart-total-count">
-                    @Model.Cart.TotalItems item@(Model.Cart.TotalItems == 1 ? "" : "s") in cart
+
+                    @Model.Cart.TotalItems
+                    item@(Model.Cart.TotalItems == 1 ? "" : "s")
+                    in cart
+
                 </span>
 
             </div>
 
 
+            <!-- =========================================
+                 CART LAYOUT
+            ========================================== -->
+
             <div class="cart-layout">
 
-                <!-- ==============================
-                     LEFT SIDE - CART ITEMS
-                =============================== -->
+
+                <!-- =====================================
+                     LEFT SIDE - ITEMS
+                ====================================== -->
 
                 <div class="cart-items-section">
 
@@ -127,17 +149,13 @@
                                  id="cart-item-@item.ProductId">
 
 
-                            <!-- =========================
-                                 SELECT PRODUCT
-                            ========================== -->
+                            <!-- PRODUCT SELECT -->
 
                             <div class="cart-item-selector">
 
                                 <input type="checkbox"
                                        class="cart-checkbox product-select-checkbox"
-                                       name="selectedProductIds"
                                        value="@item.ProductId"
-                                       form="checkoutForm"
                                        data-product-id="@item.ProductId"
                                        data-price="@item.Price"
                                        data-quantity="@item.Quantity"
@@ -146,9 +164,7 @@
                             </div>
 
 
-                            <!-- =========================
-                                 PRODUCT IMAGE
-                            ========================== -->
+                            <!-- PRODUCT IMAGE -->
 
                             <div class="cart-item-image">
 
@@ -172,12 +188,12 @@
                             </div>
 
 
-                            <!-- =========================
-                                 PRODUCT DETAILS
-                            ========================== -->
+                            <!-- PRODUCT CONTENT -->
 
                             <div class="cart-item-content">
 
+
+                                <!-- TOP -->
 
                                 <div class="cart-item-main">
 
@@ -186,7 +202,9 @@
                                         @if (!string.IsNullOrWhiteSpace(item.Category))
                                         {
                                             <span class="cart-item-category">
+
                                                 @item.Category
+
                                             </span>
                                         }
 
@@ -207,16 +225,16 @@
                                         @if (!string.IsNullOrWhiteSpace(item.Author))
                                         {
                                             <p class="cart-item-author">
+
                                                 by @item.Author
+
                                             </p>
                                         }
 
                                     </div>
 
 
-                                    <!-- =========================
-                                         REMOVE BUTTON
-                                    ========================== -->
+                                    <!-- REMOVE -->
 
                                     <button type="button"
                                             class="cart-remove-button"
@@ -233,18 +251,21 @@
                                 </div>
 
 
-                                <!-- PRICE -->
+                                <!-- UNIT PRICE -->
 
                                 <div class="cart-item-price">
+
                                     @item.Price.ToString("C")
+
                                 </div>
 
 
-                                <!-- =========================
-                                     QUANTITY
-                                ========================== -->
+                                <!-- BOTTOM -->
 
                                 <div class="cart-item-bottom">
+
+
+                                    <!-- QUANTITY UPDATE -->
 
                                     <form method="post"
                                           asp-page-handler="Update"
@@ -256,7 +277,9 @@
 
 
                                         <label for="quantity-@item.ProductId">
+
                                             Quantity
+
                                         </label>
 
 
@@ -277,7 +300,8 @@
                                                    value="@item.Quantity"
                                                    min="1"
                                                    max="100"
-                                                   class="cart-quantity-input" />
+                                                   class="cart-quantity-input"
+                                                   data-product-id="@item.ProductId" />
 
 
                                             <button type="button"
@@ -325,9 +349,9 @@
                 </div>
 
 
-                <!-- ==============================
-                     RIGHT SIDE - SUMMARY
-                =============================== -->
+                <!-- =====================================
+                     RIGHT SIDE - ORDER SUMMARY
+                ====================================== -->
 
                 <aside class="cart-summary">
 
@@ -339,6 +363,8 @@
                         Order Summary
                     </h2>
 
+
+                    <!-- SELECTED PRODUCTS -->
 
                     <div class="cart-summary-row">
 
@@ -353,6 +379,8 @@
                     </div>
 
 
+                    <!-- SELECTED QUANTITY -->
+
                     <div class="cart-summary-row">
 
                         <span>
@@ -365,6 +393,8 @@
 
                     </div>
 
+
+                    <!-- SHIPPING -->
 
                     <div class="cart-summary-row">
 
@@ -382,6 +412,8 @@
                     <hr />
 
 
+                    <!-- TOTAL -->
+
                     <div class="cart-summary-total">
 
                         <span>
@@ -396,19 +428,31 @@
 
 
                     <p class="cart-summary-note">
+
                         Only the selected products will continue
-                        to checkout. Unselected products will
-                        remain safely in your cart.
+                        to checkout. Unselected products will remain
+                        safely in your cart.
+
                     </p>
 
 
-                    <!-- =========================
+                    <!-- =================================
                          CHECKOUT FORM
-                    ========================== -->
+                    ================================== -->
 
                     <form method="post"
                           asp-page-handler="Checkout"
                           id="checkoutForm">
+
+                        <!--
+                            JavaScript adds:
+                            selectedProductIds
+                            as hidden inputs here.
+                        -->
+
+                        <div id="selectedProductsContainer">
+                        </div>
+
 
                         <button type="submit"
                                 id="checkoutButton"
@@ -421,6 +465,8 @@
                     </form>
 
 
+                    <!-- CONTINUE SHOPPING -->
+
                     <a asp-page="/Products/Index"
                        class="btn btn-outline-dark w-100 mt-3">
 
@@ -428,6 +474,8 @@
 
                     </a>
 
+
+                    <!-- SECURITY INFO -->
 
                     <div class="cart-summary-security">
 
@@ -448,90 +496,103 @@
                 </aside>
 
             </div>
+
+
+            <!-- =========================================
+                 REMOVE CONFIRMATION DIALOG
+            ========================================== -->
+
+            <dialog id="removeDialog"
+                    class="remove-dialog">
+
+                <div class="remove-dialog-content">
+
+
+                    <!-- CLOSE -->
+
+                    <button type="button"
+                            class="remove-dialog-close"
+                            onclick="closeRemoveDialog()"
+                            aria-label="Close">
+
+                        ×
+
+                    </button>
+
+
+                    <!-- ICON -->
+
+                    <div class="remove-dialog-icon">
+                        🗑️
+                    </div>
+
+
+                    <h2>
+                        Remove from cart?
+                    </h2>
+
+
+                    <p>
+
+                        Are you sure you want to remove
+
+                        <strong id="removeProductName">
+                            this product
+                        </strong>
+
+                        from your cart?
+
+                    </p>
+
+
+                    <p class="remove-dialog-note">
+
+                        You can always add it again later.
+
+                    </p>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="remove-dialog-actions">
+
+                        <button type="button"
+                                class="btn btn-outline-dark"
+                                onclick="closeRemoveDialog()">
+
+                            Cancel
+
+                        </button>
+
+
+                        <form method="post"
+                              asp-page-handler="Remove"
+                              id="removeProductForm">
+
+                            <input type="hidden"
+                                   name="productId"
+                                   id="removeProductId" />
+
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+
+                                Remove Item
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </dialog>
         }
 
     </div>
 
 </section>
-
-
-<!-- =========================================
-     REMOVE CONFIRMATION DIALOG
-========================================= -->
-
-<dialog id="removeDialog"
-        class="remove-dialog">
-
-    <div class="remove-dialog-content">
-
-        <button type="button"
-                class="remove-dialog-close"
-                onclick="closeRemoveDialog()"
-                aria-label="Close">
-
-            ×
-
-        </button>
-
-
-        <div class="remove-dialog-icon">
-            🗑️
-        </div>
-
-
-        <h2>
-            Remove from cart?
-        </h2>
-
-
-        <p>
-            Are you sure you want to remove
-            <strong id="removeProductName">
-                this product
-            </strong>
-            from your cart?
-        </p>
-
-
-        <p class="remove-dialog-note">
-            You can always add it again later.
-        </p>
-
-
-        <div class="remove-dialog-actions">
-
-            <button type="button"
-                    class="btn btn-outline-dark"
-                    onclick="closeRemoveDialog()">
-
-                Cancel
-
-            </button>
-
-
-            <form method="post"
-                  asp-page-handler="Remove"
-                  id="removeProductForm">
-
-                <input type="hidden"
-                       name="productId"
-                       id="removeProductId" />
-
-
-                <button type="submit"
-                        class="btn btn-danger">
-
-                    Remove Item
-
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</dialog>
 
 
 @section Scripts
@@ -557,8 +618,16 @@
 
             if (quantity < 100) {
 
+                quantity++;
+
                 input.value =
-                    quantity + 1;
+                    quantity;
+
+                updateCheckboxQuantity(
+                    productId,
+                    quantity);
+
+                updateSelectedSummary();
             }
         }
 
@@ -578,10 +647,70 @@
 
             if (quantity > 1) {
 
+                quantity--;
+
                 input.value =
-                    quantity - 1;
+                    quantity;
+
+                updateCheckboxQuantity(
+                    productId,
+                    quantity);
+
+                updateSelectedSummary();
             }
         }
+
+
+        function updateCheckboxQuantity(
+            productId,
+            quantity) {
+
+            const checkbox =
+                document.querySelector(
+                    `.product-select-checkbox[data-product-id="${productId}"]`);
+
+            if (!checkbox) {
+                return;
+            }
+
+            checkbox.dataset.quantity =
+                quantity;
+        }
+
+
+        // Handle quantity manually typed
+        document
+            .querySelectorAll(
+                ".cart-quantity-input")
+            .forEach(input => {
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        let quantity =
+                            parseInt(
+                                this.value)
+                            || 1;
+
+                        if (quantity < 1) {
+                            quantity = 1;
+                        }
+
+                        if (quantity > 100) {
+                            quantity = 100;
+                        }
+
+                        const productId =
+                            this.dataset.productId;
+
+                        updateCheckboxQuantity(
+                            productId,
+                            quantity);
+
+                        updateSelectedSummary();
+                    });
+            });
 
 
 
@@ -606,6 +735,14 @@
                     "removeProductName");
 
 
+            if (!dialog ||
+                !productIdInput ||
+                !productNameElement) {
+
+                return;
+            }
+
+
             productIdInput.value =
                 productId;
 
@@ -623,17 +760,19 @@
                 document.getElementById(
                     "removeDialog");
 
+            if (!dialog) {
+                return;
+            }
+
             dialog.close();
         }
 
 
-
-        // Close dialog if customer clicks
-        // outside of the popup.
-
+        // Close popup when clicking outside
         const removeDialog =
             document.getElementById(
                 "removeDialog");
+
 
         removeDialog?.addEventListener(
             "click",
@@ -643,13 +782,15 @@
                     removeDialog
                         .getBoundingClientRect();
 
-                const inside =
+
+                const clickedInside =
                     event.clientX >= rectangle.left &&
                     event.clientX <= rectangle.right &&
                     event.clientY >= rectangle.top &&
                     event.clientY <= rectangle.bottom;
 
-                if (!inside) {
+
+                if (!clickedInside) {
 
                     closeRemoveDialog();
                 }
@@ -665,21 +806,26 @@
             document.getElementById(
                 "selectAll");
 
+
         const productCheckboxes =
             document.querySelectorAll(
                 ".product-select-checkbox");
+
 
         const selectedProductCount =
             document.getElementById(
                 "selectedProductCount");
 
+
         const selectedQuantity =
             document.getElementById(
                 "selectedQuantity");
 
+
         const selectedSubtotal =
             document.getElementById(
                 "selectedSubtotal");
+
 
         const checkoutButton =
             document.getElementById(
@@ -689,7 +835,9 @@
         function updateSelectedSummary() {
 
             let productCount = 0;
+
             let totalQuantity = 0;
+
             let totalPrice = 0;
 
 
@@ -700,22 +848,27 @@
                         checkbox.closest(
                             ".cart-item");
 
+
                     if (checkbox.checked) {
 
                         productCount++;
+
 
                         const quantity =
                             parseInt(
                                 checkbox.dataset.quantity)
                             || 0;
 
+
                         const price =
                             parseFloat(
                                 checkbox.dataset.price)
                             || 0;
 
+
                         totalQuantity +=
                             quantity;
+
 
                         totalPrice +=
                             price * quantity;
@@ -750,10 +903,10 @@
 
                 selectedSubtotal.textContent =
                     totalPrice.toLocaleString(
-                        undefined,
+                        "en-CA",
                         {
                             style: "currency",
-                            currency: "USD"
+                            currency: "CAD"
                         });
             }
 
@@ -767,27 +920,33 @@
 
             if (selectAllCheckbox) {
 
-                selectAllCheckbox.checked =
+                const allSelected =
                     productCheckboxes.length > 0 &&
                     [...productCheckboxes]
                         .every(
                             checkbox =>
                                 checkbox.checked);
 
-                selectAllCheckbox.indeterminate =
+
+                const someSelected =
                     [...productCheckboxes]
                         .some(
                             checkbox =>
-                                checkbox.checked)
-                    &&
-                    !selectAllCheckbox.checked;
+                                checkbox.checked);
+
+
+                selectAllCheckbox.checked =
+                    allSelected;
+
+
+                selectAllCheckbox.indeterminate =
+                    someSelected &&
+                    !allSelected;
             }
         }
 
 
-
         // Individual checkbox
-
         productCheckboxes.forEach(
             checkbox => {
 
@@ -797,9 +956,7 @@
             });
 
 
-
         // Select all
-
         selectAllCheckbox?.addEventListener(
             "change",
             function () {
@@ -811,12 +968,94 @@
                             selectAllCheckbox.checked;
                     });
 
+
                 updateSelectedSummary();
             });
 
 
 
-        // Calculate immediately when page loads
+        // =========================================
+        // CHECKOUT SUBMISSION
+        // =========================================
+
+        const checkoutForm =
+            document.getElementById(
+                "checkoutForm");
+
+
+        const selectedProductsContainer =
+            document.getElementById(
+                "selectedProductsContainer");
+
+
+        checkoutForm?.addEventListener(
+            "submit",
+            function (event) {
+
+                if (!selectedProductsContainer) {
+
+                    event.preventDefault();
+
+                    return;
+                }
+
+
+                // Remove old hidden inputs
+                selectedProductsContainer.innerHTML =
+                    "";
+
+
+                const selectedProducts =
+                    document.querySelectorAll(
+                        ".product-select-checkbox:checked");
+
+
+                // Nothing selected
+                if (selectedProducts.length === 0) {
+
+                    event.preventDefault();
+
+
+                    alert(
+                        "Please select at least one product to continue.");
+
+                    return;
+                }
+
+
+                // Add each selected ProductId
+                // to the checkout form.
+                selectedProducts.forEach(
+                    checkbox => {
+
+                        const input =
+                            document.createElement(
+                                "input");
+
+
+                        input.type =
+                            "hidden";
+
+
+                        input.name =
+                            "selectedProductIds";
+
+
+                        input.value =
+                            checkbox.value;
+
+
+                        selectedProductsContainer
+                            .appendChild(
+                                input);
+                    });
+            });
+
+
+
+        // =========================================
+        // INITIAL PAGE CALCULATION
+        // =========================================
 
         updateSelectedSummary();
 

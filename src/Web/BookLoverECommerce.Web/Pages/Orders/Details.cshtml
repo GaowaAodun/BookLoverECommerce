@@ -1,0 +1,202 @@
+@page "{id:guid}"
+@model BookLoverECommerce.Web.Pages.Orders.DetailsModel
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<section class="order-details-page">
+
+    <div class="container">
+
+        @if (Model.Order is not null)
+        {
+            <div class="order-details-header">
+
+                <div>
+
+                    <a asp-page="/Orders/Index"
+                       class="order-back-link">
+
+                        ← Back to Orders
+
+                    </a>
+
+                    <span class="section-label">
+                        ORDER DETAILS
+                    </span>
+
+                    <h1>
+                        @Model.Order.OrderNumber
+                    </h1>
+
+                    <p>
+                        Placed on
+                        @Model.Order.CreatedAtUtc
+                            .ToLocalTime()
+                            .ToString("MMMM dd, yyyy 'at' h:mm tt")
+                    </p>
+
+                </div>
+
+
+                <span class="order-status order-status-@Model.Order.Status.ToLowerInvariant()">
+                    @Model.Order.Status
+                </span>
+
+            </div>
+
+
+            <div class="order-details-layout">
+
+                <main class="order-details-items">
+
+                    <div class="order-details-section-title">
+
+                        <h2>
+                            Purchased Items
+                        </h2>
+
+                        <span>
+                            @Model.Order.TotalQuantity item@(Model.Order.TotalQuantity == 1 ? "" : "s")
+                        </span>
+
+                    </div>
+
+
+                    @foreach (var item in Model.Order.Items)
+                    {
+                        <article class="order-product">
+
+                            <div class="order-product-image">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl"
+                                         alt="@item.ProductName" />
+                                }
+                                else
+                                {
+                                    <div class="order-product-placeholder">
+                                        📖
+                                    </div>
+                                }
+
+                            </div>
+
+
+                            <div class="order-product-content">
+
+                                <h3>
+                                    @item.ProductName
+                                </h3>
+
+                                <div class="order-product-meta">
+
+                                    <span>
+                                        Quantity:
+                                        <strong>
+                                            @item.Quantity
+                                        </strong>
+                                    </span>
+
+                                    <span>
+                                        Unit price:
+                                        <strong>
+                                            @item.UnitPrice.ToString("C")
+                                        </strong>
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <strong class="order-product-total">
+                                @item.LineTotal.ToString("C")
+                            </strong>
+
+                        </article>
+                    }
+
+                </main>
+
+
+                <aside class="order-details-summary">
+
+                    <span class="section-label">
+                        PAYMENT SUMMARY
+                    </span>
+
+                    <h2>
+                        Order Total
+                    </h2>
+
+
+                    <div class="order-summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            @Model.Order.Subtotal.ToString("C")
+                        </strong>
+
+                    </div>
+
+
+                    <div class="order-summary-row">
+
+                        <span>
+                            Shipping
+                        </span>
+
+                        @if (Model.Order.ShippingAmount == 0)
+                        {
+                            <strong class="text-success">
+                                Free
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong>
+                                @Model.Order.ShippingAmount.ToString("C")
+                            </strong>
+                        }
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <div class="order-summary-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong>
+                            @Model.Order.Total.ToString("C")
+                        </strong>
+
+                    </div>
+
+
+                    <a asp-page="/Products/Index"
+                       class="btn btn-dark w-100">
+
+                        Continue Shopping
+
+                    </a>
+
+                </aside>
+
+            </div>
+        }
+
+    </div>
+
+</section>

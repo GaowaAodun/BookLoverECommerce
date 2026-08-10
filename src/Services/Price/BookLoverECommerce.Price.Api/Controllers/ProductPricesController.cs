@@ -16,8 +16,15 @@ public sealed class ProductPricesController : ControllerBase
     public ProductPricesController(
         IProductPriceService productPriceService)
     {
-        _productPriceService = productPriceService;
+        _productPriceService =
+            productPriceService;
     }
+
+
+    // =========================================
+    // GET ALL PRICES
+    // GET /api/prices
+    // =========================================
 
     [AllowAnonymous]
     [HttpGet]
@@ -28,29 +35,40 @@ public sealed class ProductPricesController : ControllerBase
         GetAll(
             CancellationToken cancellationToken)
     {
-        var prices = await _productPriceService.GetAllAsync(
-            cancellationToken);
+        var prices =
+            await _productPriceService.GetAllAsync(
+                cancellationToken);
 
-        return Ok(prices);
+        return Ok(
+            prices);
     }
+
+
+    // =========================================
+    // GET PRICE BY PRICE ID
+    // GET /api/prices/{id}
+    // =========================================
 
     [AllowAnonymous]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductPriceDto>> GetById(
         Guid id,
         CancellationToken cancellationToken)
     {
         try
         {
-            var price = await _productPriceService.GetByIdAsync(
-                id,
-                cancellationToken);
+            var price =
+                await _productPriceService.GetByIdAsync(
+                    id,
+                    cancellationToken);
 
-            return Ok(price);
+            return Ok(
+                price);
         }
         catch (ProductPriceNotFoundException exception)
         {
@@ -61,24 +79,34 @@ public sealed class ProductPricesController : ControllerBase
         }
     }
 
+
+    // =========================================
+    // GET PRICE BY PRODUCT ID
+    // GET /api/prices/product/{productId}
+    // =========================================
+
     [AllowAnonymous]
     [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProductPriceDto>> GetByProductId(
-        Guid productId,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProductPriceDto>>
+        GetByProductId(
+            Guid productId,
+            CancellationToken cancellationToken)
     {
         try
         {
             var price =
-                await _productPriceService.GetByProductIdAsync(
-                    productId,
-                    cancellationToken);
+                await _productPriceService
+                    .GetByProductIdAsync(
+                        productId,
+                        cancellationToken);
 
-            return Ok(price);
+            return Ok(
+                price);
         }
         catch (ProductPriceForProductNotFoundException exception)
         {
@@ -89,39 +117,117 @@ public sealed class ProductPricesController : ControllerBase
         }
     }
 
+
+    // =========================================
+    // GET CHECKOUT PRICE QUOTE
+    //
+    // POST /api/prices/quote
+    // =========================================
+
+    [Authorize(Roles = "Customer,Admin")]
+    [HttpPost("quote")]
+    [ProducesResponseType(
+        typeof(PriceQuoteResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<PriceQuoteResponse>>
+        GetQuote(
+            PriceQuoteRequest request,
+            CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (request.Items is null ||
+                request.Items.Count == 0)
+            {
+                return BadRequest(new
+                {
+                    error =
+                        "At least one product is required."
+                });
+            }
+
+
+            var quote =
+                await _productPriceService.GetQuoteAsync(
+                    request,
+                    cancellationToken);
+
+
+            return Ok(
+                quote);
+        }
+        catch (ProductPriceForProductNotFoundException exception)
+        {
+            return BadRequest(new
+            {
+                error = exception.Message
+            });
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new
+            {
+                error = exception.Message
+            });
+        }
+    }
+
+
+    // =========================================
+    // CREATE PRICE
+    // ADMIN ONLY
+    //
+    // POST /api/prices
+    // =========================================
+
     [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<ProductPriceDto>> Create(
-        CreateProductPriceRequest request,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<ProductPriceDto>>
+        Create(
+            CreateProductPriceRequest request,
+            CancellationToken cancellationToken)
     {
         try
         {
-            var command = new CreateProductPriceCommand(
-                request.ProductId,
-                request.BasePrice,
-                request.Currency,
-                request.SalePrice,
-                request.SaleStartDate,
-                request.SaleEndDate);
+            var command =
+                new CreateProductPriceCommand(
+                    request.ProductId,
+                    request.BasePrice,
+                    request.Currency,
+                    request.SalePrice,
+                    request.SaleStartDate,
+                    request.SaleEndDate);
+
 
             var createdPrice =
                 await _productPriceService.CreateAsync(
                     command,
                     cancellationToken);
 
+
             return CreatedAtAction(
                 nameof(GetById),
                 new
                 {
-                    id = createdPrice.Id
+                    id =
+                        createdPrice.Id
                 },
                 createdPrice);
         }
@@ -129,40 +235,57 @@ public sealed class ProductPricesController : ControllerBase
         {
             return Conflict(new
             {
-                error = exception.Message
+                error =
+                    exception.Message
             });
         }
         catch (ArgumentException exception)
         {
             return BadRequest(new
             {
-                error = exception.Message
+                error =
+                    exception.Message
             });
         }
     }
+
+
+    // =========================================
+    // UPDATE PRICE
+    // ADMIN ONLY
+    //
+    // PUT /api/prices/{id}
+    // =========================================
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(
         typeof(ProductPriceDto),
         StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<ProductPriceDto>> Update(
-        Guid id,
-        UpdateProductPriceRequest request,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<ProductPriceDto>>
+        Update(
+            Guid id,
+            UpdateProductPriceRequest request,
+            CancellationToken cancellationToken)
     {
         try
         {
-            var command = new UpdateProductPriceCommand(
-                request.BasePrice,
-                request.Currency,
-                request.SalePrice,
-                request.SaleStartDate,
-                request.SaleEndDate);
+            var command =
+                new UpdateProductPriceCommand(
+                    request.BasePrice,
+                    request.Currency,
+                    request.SalePrice,
+                    request.SaleStartDate,
+                    request.SaleEndDate);
+
 
             var updatedPrice =
                 await _productPriceService.UpdateAsync(
@@ -170,33 +293,49 @@ public sealed class ProductPricesController : ControllerBase
                     command,
                     cancellationToken);
 
-            return Ok(updatedPrice);
+
+            return Ok(
+                updatedPrice);
         }
         catch (ProductPriceNotFoundException exception)
         {
             return NotFound(new
             {
-                error = exception.Message
+                error =
+                    exception.Message
             });
         }
         catch (ArgumentException exception)
         {
             return BadRequest(new
             {
-                error = exception.Message
+                error =
+                    exception.Message
             });
         }
     }
 
+
+    // =========================================
+    // DELETE PRICE
+    // ADMIN ONLY
+    //
+    // DELETE /api/prices/{id}
+    // =========================================
+
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        StatusCodes.Status204NoContent)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Delete(
-         Guid id,
-         CancellationToken cancellationToken)
+        Guid id,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -210,7 +349,8 @@ public sealed class ProductPricesController : ControllerBase
         {
             return NotFound(new
             {
-                error = exception.Message
+                error =
+                    exception.Message
             });
         }
     }

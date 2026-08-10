@@ -1,0 +1,306 @@
+@page
+@model BookLoverECommerce.Web.Pages.Orders.IndexModel
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<section class="orders-page">
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+        <div class="orders-page-header">
+
+            <div>
+
+                <span class="section-label">
+                    MY ACCOUNT
+                </span>
+
+                <h1>
+                    My Orders
+                </h1>
+
+                <p>
+                    View your purchases, check order status,
+                    and review your previous orders.
+                </p>
+
+            </div>
+
+
+            <a asp-page="/Products/Index"
+               class="btn btn-outline-dark orders-shopping-button">
+
+                ← Continue Shopping
+
+            </a>
+
+        </div>
+
+
+        @if (Model.Orders.Count == 0)
+        {
+            <!-- EMPTY STATE -->
+            <div class="orders-empty-card">
+
+                <div class="orders-empty-icon">
+                    📦
+                </div>
+
+                <span class="orders-empty-label">
+                    NOTHING HERE YET
+                </span>
+
+                <h2>
+                    You haven't placed an order yet
+                </h2>
+
+                <p>
+                    Once you complete your first purchase,
+                    your order details and status will appear here.
+                </p>
+
+
+                <div class="orders-empty-actions">
+
+                    <a asp-page="/Products/Index"
+                       class="btn btn-dark btn-lg">
+
+                        Browse Products
+
+                    </a>
+
+                    <a asp-page="/Cart/Index"
+                       class="btn btn-outline-dark btn-lg">
+
+                        View My Cart
+
+                    </a>
+
+                </div>
+
+
+                <div class="orders-empty-benefits">
+
+                    <div>
+                        <span>✓</span>
+                        <p>
+                            Track your order status
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>✓</span>
+                        <p>
+                            Review purchased products
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>✓</span>
+                        <p>
+                            See your order history
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <!-- ORDER COUNT -->
+            <div class="orders-results-bar">
+
+                <div>
+
+                    <strong>
+                        @Model.Orders.Count
+                    </strong>
+
+                    @(Model.Orders.Count == 1
+                        ? "order"
+                        : "orders")
+
+                </div>
+
+                <span>
+                    Most recent orders first
+                </span>
+
+            </div>
+
+
+            <!-- ORDERS LIST -->
+            <div class="orders-list">
+
+                @foreach (var order in Model.Orders)
+                {
+                    <article class="order-card">
+
+                        <!-- TOP -->
+                        <div class="order-card-header">
+
+                            <div class="order-card-identity">
+
+                                <span class="order-card-label">
+                                    ORDER
+                                </span>
+
+                                <strong class="order-number">
+                                    @order.OrderNumber
+                                </strong>
+
+                                <span class="order-date">
+                                    Placed
+                                    @order.CreatedAtUtc
+                                        .ToLocalTime()
+                                        .ToString("MMM dd, yyyy")
+                                </span>
+
+                            </div>
+
+
+                            <span class="order-status order-status-@order.Status.ToLowerInvariant()">
+
+                                @order.Status
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- INFORMATION -->
+                        <div class="order-card-details">
+
+                            <div class="order-stat">
+
+                                <span>
+                                    Items
+                                </span>
+
+                                <strong>
+                                    @order.TotalQuantity
+                                </strong>
+
+                            </div>
+
+
+                            <div class="order-stat">
+
+                                <span>
+                                    Shipping
+                                </span>
+
+                                <strong>
+                                    @(order.ShippingAmount == 0
+                                        ? "Free"
+                                        : order.ShippingAmount.ToString("C"))
+                                </strong>
+
+                            </div>
+
+
+                            <div class="order-stat">
+
+                                <span>
+                                    Order Total
+                                </span>
+
+                                <strong class="order-total">
+                                    @order.Total.ToString("C")
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PRODUCT PREVIEW -->
+                        @if (order.Items.Count > 0)
+                        {
+                            <div class="order-products-preview">
+
+                                @foreach (var item in order.Items.Take(3))
+                                {
+                                    <div class="order-preview-item">
+
+                                        <div class="order-preview-image">
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl"
+                                                     alt="@item.ProductName" />
+                                            }
+                                            else
+                                            {
+                                                <span>
+                                                    📖
+                                                </span>
+                                            }
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                @item.ProductName
+                                            </strong>
+
+                                            <span>
+                                                Qty @item.Quantity
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+                                }
+
+
+                                @if (order.Items.Count > 3)
+                                {
+                                    <span class="order-more-items">
+
+                                        +@(order.Items.Count - 3)
+                                        more
+
+                                    </span>
+                                }
+
+                            </div>
+                        }
+
+
+                        <!-- ACTIONS -->
+                        <div class="order-card-footer">
+
+                            <a asp-page="/Orders/Details"
+                               asp-route-id="@order.Id"
+                               class="btn btn-dark">
+
+                                View Order Details
+
+                            </a>
+
+
+                            <a asp-page="/Products/Index"
+                               class="btn btn-outline-dark">
+
+                                Continue Shopping
+
+                            </a>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
+
+    </div>
+
+</section>

@@ -3,14 +3,16 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace BookLoverECommerce.Web.Services.Handlers;
 
-public sealed class AuthenticationTokenHandler : DelegatingHandler
+public sealed class AuthenticationTokenHandler
+    : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AuthenticationTokenHandler(
         IHttpContextAccessor httpContextAccessor)
     {
-        _httpContextAccessor = httpContextAccessor;
+        _httpContextAccessor =
+            httpContextAccessor;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -26,12 +28,18 @@ public sealed class AuthenticationTokenHandler : DelegatingHandler
                 await httpContext.GetTokenAsync(
                     "access_token");
 
+            Console.WriteLine(
+                $"Access token found: {!string.IsNullOrWhiteSpace(token)}");
+
             if (!string.IsNullOrWhiteSpace(token))
             {
                 request.Headers.Authorization =
                     new AuthenticationHeaderValue(
                         "Bearer",
                         token);
+
+                Console.WriteLine(
+                    $"Bearer token attached to: {request.RequestUri}");
             }
         }
 
