@@ -626,12 +626,19 @@ docker compose ps
 Then open:
 
 ```text
-http://localhost:5001/swagger/
-http://localhost:5002/swagger/
-http://localhost:5003/swagger/
-http://localhost:5004/swagger/
-http://localhost:15672
-http://localhost:5092
+Then open:
+
+```text
+Auth:     http://localhost:5001/swagger/
+Product:  http://localhost:5002/swagger/
+Cart:     http://localhost:5003/swagger/
+Price:    http://localhost:5004/swagger/
+Order:    http://localhost:5005/swagger/
+
+cms:      http://localhost:5100
+
+RabbitMQ: http://localhost:15672
+ApiGateway: http://localhost:5092
 ```
 
 ## Current Status
@@ -641,13 +648,13 @@ http://localhost:5092
 - ✅ Clean Architecture
 - ✅ BuildingBlocks
 - ✅ Central Package Management
-- 🟡 (Almost Complete) Auth Service Skeleton 
+- ✅ (Almost Complete) Auth Service Skeleton 
 - ✅ Products Service Skeleton
 - ✅ Cart Service Skeleton
 - ✅ Price Service Skeleton
 - ✅ API Gateway(YARP)
-- 🟡 (Almost Complete)Docker & Docker Compose
-- 🟡 (Initial Complete)RabbitMQ & MassTransit
+- ✅ (Almost Complete)Docker & Docker Compose
+- ✅ (Initial Complete)RabbitMQ & MassTransit
 
 
 ## License

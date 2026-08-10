@@ -574,32 +574,36 @@ local database files
 
 ---
 
-## Quick start
+## Quick Start
 
-For a new developer:
+### Prerequisites
+
+- Docker Desktop
+- Git
+
+No local installation of .NET or PostgreSQL is required when running the
+application with Docker.
+
+### Run the Application
+
+From the project root directory:
 
 ```bash
-git clone https://github.com/GaowaAodun/BookLoverECommerce.git
-cd BookLoverECommerce
-
-git checkout dev
-git pull origin dev
-
 cp .env.example .env
-# Edit .env and generate JWT_KEY
-
-docker compose config
 docker compose up -d --build
-docker compose ps
 ```
 
 Then open:
 
 ```text
-http://localhost:5001/swagger/
-http://localhost:5002/swagger/
-http://localhost:5003/swagger/
-http://localhost:5004/swagger/
-http://localhost:15672
-http://localhost:5092
+Auth:     http://localhost:5001/swagger/
+Product:  http://localhost:5002/swagger/
+Cart:     http://localhost:5003/swagger/
+Price:    http://localhost:5004/swagger/
+Order:    http://localhost:5005/swagger/
+
+cms:      http://localhost:5100
+
+RabbitMQ: http://localhost:15672
+ApiGateway: http://localhost:5092
 ```

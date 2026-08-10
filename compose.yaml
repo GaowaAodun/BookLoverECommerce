@@ -148,6 +148,35 @@ services:
       - booklover-network
 
   # =========================================================
+  # ORDER DATABASE
+  # =========================================================
+  order-db:
+    image: postgres:18
+    container_name: booklover-order-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: booklover_orders
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD}
+
+    ports:
+      - "5436:5432"
+
+    volumes:
+      - order_data:/var/lib/postgresql
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U orders_user -d booklover_orders" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - booklover-network
+
+  # =========================================================
   # AUTH API
   # =========================================================
   auth-api:
@@ -324,6 +353,46 @@ services:
       - booklover-network
 
   # =========================================================
+  # ORDER API
+  # =========================================================
+  order-api:
+    container_name: booklover-order-api
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Services/Order/BookLoverECommerce.Order.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+      Services__ProductsApi: http://products-api:8080
+      Services__PriceApi: http://price-api:8080
+
+      ConnectionStrings__OrderDatabase: >-
+        Host=order-db; Port=5432; Database=booklover_orders; Username=orders_user; Password=${ORDER_DB_PASSWORD}
+
+      Database__ApplyMigrationsOnStartup: "true"
+
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Key: ${JWT_KEY}
+
+    ports:
+      - "5005:8080"
+
+    depends_on:
+      order-db:
+        condition: service_healthy
+      products-api:
+        condition: service_started
+      price-api:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
+  # =========================================================
   # API GATEWAY
   # =========================================================
   api-gateway:
@@ -351,6 +420,9 @@ services:
       ReverseProxy__Clusters__cart-cluster__Destinations__destination1__Address: >-
         http://cart-api:8080/
 
+      ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: >-
+        http://order-api:8080/
+
     ports:
       - "5092:8080"
 
@@ -362,6 +434,35 @@ services:
       price-api:
         condition: service_started
       cart-api:
+        condition: service_started
+      order-api:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
+
+  # =========================================================
+  # CMS
+  # =========================================================
+  cms:
+    container_name: booklover-cms
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Web/BookLoverECommerce.Cms/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+      ApiGateway__BaseUrl: http://api-gateway:8080
+
+    ports:
+      - "5100:8080"
+
+    depends_on:
+      api-gateway:
         condition: service_started
 
     networks:
@@ -385,6 +486,9 @@ volumes:
 
   price_data:
     name: booklover-price-data
+
+  order_data:
+    name: booklover-order-data
 
 # =========================================================
 # NETWORK

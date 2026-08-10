@@ -1,7 +1,14 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using BookLoverECommerce.Cms.Services;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+var canadianCulture = new CultureInfo("en-CA");
+
+CultureInfo.DefaultThreadCurrentCulture = canadianCulture;
+CultureInfo.DefaultThreadCurrentUICulture = canadianCulture;
 
 builder.Services.AddRazorPages(options =>
 {
