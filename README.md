@@ -553,11 +553,13 @@ lsof -i :5001
 lsof -i :5002
 lsof -i :5003
 lsof -i :5004
+lsof -i :5005
 lsof -i :5092
 lsof -i :5432
 lsof -i :5433
 lsof -i :5434
 lsof -i :5435
+lsof -i :5436
 lsof -i :5672
 lsof -i :15672
 ```
@@ -581,7 +583,7 @@ README.md
 src/
 ```
 
-Each web project should contain its own Dockerfile:
+Each web project should contain its own Dockerfiles:
 
 ```text
 src/ApiGateway/BookLoverECommerce.ApiGateway/Dockerfile
@@ -589,6 +591,7 @@ src/Services/Auth/BookLoverECommerce.Auth.Api/Dockerfile
 src/Services/Products/BookLoverECommerce.Products.Api/Dockerfile
 src/Services/Price/BookLoverECommerce.Price.Api/Dockerfile
 src/Services/Cart/BookLoverECommerce.Cart.Api/Dockerfile
+src/Services/Order/BookLoverECommerce.Order.Api/Dockerfile
 ```
 
 Do not commit:
@@ -653,8 +656,8 @@ ApiGateway: http://localhost:5092
 - ✅ Cart Service Skeleton
 - ✅ Price Service Skeleton
 - ✅ API Gateway(YARP)
-- ✅ (Almost Complete)Docker & Docker Compose
-- ✅ (Initial Complete)RabbitMQ & MassTransit
+- ✅ Docker & Docker Compose
+- ✅ RabbitMQ & MassTransit
 
 
 ## License
