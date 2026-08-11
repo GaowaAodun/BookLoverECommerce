@@ -1,6 +1,7 @@
 name: booklover-ecommerce
 
 services:
+
   # =========================================================
   # RABBITMQ
   # =========================================================
@@ -22,7 +23,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
     healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -30,6 +31,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # AUTH DATABASE
@@ -51,7 +53,7 @@ services:
       - auth_data:/var/lib/postgresql
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U auth_user -d booklover_auth" ]
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d booklover_auth"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -59,6 +61,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # PRODUCTS DATABASE
@@ -80,7 +83,7 @@ services:
       - products_data:/var/lib/postgresql
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U products_user -d booklover_products" ]
+      test: ["CMD-SHELL", "pg_isready -U products_user -d booklover_products"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -88,6 +91,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # CART DATABASE
@@ -109,7 +113,7 @@ services:
       - cart_data:/var/lib/postgresql
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U cart_user -d booklover_cart" ]
+      test: ["CMD-SHELL", "pg_isready -U cart_user -d booklover_cart"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -117,6 +121,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # PRICE DATABASE
@@ -138,7 +143,7 @@ services:
       - price_data:/var/lib/postgresql
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U price_user -d booklover_price" ]
+      test: ["CMD-SHELL", "pg_isready -U price_user -d booklover_price"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -146,6 +151,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # ORDER DATABASE
@@ -167,7 +173,7 @@ services:
       - order_data:/var/lib/postgresql
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U orders_user -d booklover_orders" ]
+      test: ["CMD-SHELL", "pg_isready -U orders_user -d booklover_orders"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -175,6 +181,37 @@ services:
 
     networks:
       - booklover-network
+
+
+  # =========================================================
+  # SHOPPER TRACKING DATABASE
+  # =========================================================
+  shopper-tracking-db:
+    image: postgres:18
+    container_name: booklover-shopper-tracking-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: booklover_tracking
+      POSTGRES_USER: tracking_user
+      POSTGRES_PASSWORD: ${TRACKING_DB_PASSWORD}
+
+    ports:
+      - "5437:5432"
+
+    volumes:
+      - shopper_tracking_data:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracking_user -d booklover_tracking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - booklover-network
+
 
   # =========================================================
   # AUTH API
@@ -214,6 +251,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # PRODUCTS API
@@ -256,6 +294,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # PRICE API
@@ -302,6 +341,7 @@ services:
 
     networks:
       - booklover-network
+
 
   # =========================================================
   # CART API
@@ -352,6 +392,7 @@ services:
     networks:
       - booklover-network
 
+
   # =========================================================
   # ORDER API
   # =========================================================
@@ -366,8 +407,15 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
       ASPNETCORE_URLS: http://+:8080
+
       Services__ProductsApi: http://products-api:8080
       Services__PriceApi: http://price-api:8080
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__VirtualHost: /
+      RabbitMq__Username: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
 
       ConnectionStrings__OrderDatabase: >-
         Host=order-db; Port=5432; Database=booklover_orders; Username=orders_user; Password=${ORDER_DB_PASSWORD}
@@ -388,9 +436,55 @@ services:
         condition: service_started
       price-api:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
     networks:
       - booklover-network
+
+
+  # =========================================================
+  # SHOPPER TRACKING API
+  # =========================================================
+  shopper-tracking-api:
+    container_name: booklover-shopper-tracking-api
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Services/ShopperTracking/BookLoverECommerce.ShopperTracking.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__ShopperTrackingDatabase: >-
+        Host=shopper-tracking-db; Port=5432; Database=booklover_tracking; Username=tracking_user; Password=${TRACKING_DB_PASSWORD}
+
+      Database__ApplyMigrationsOnStartup: "true"
+
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Key: ${JWT_KEY}
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__VirtualHost: /
+      RabbitMq__Username: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+
+    ports:
+      - "5006:8080"
+
+    depends_on:
+      shopper-tracking-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    networks:
+      - booklover-network
+
 
   # =========================================================
   # API GATEWAY
@@ -422,7 +516,8 @@ services:
 
       ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: >-
         http://order-api:8080/
-
+      ReverseProxy__Clusters__tracking-cluster__Destinations__destination1__Address: >-
+        http://shopper-tracking-api:8080/
     ports:
       - "5092:8080"
 
@@ -436,6 +531,8 @@ services:
       cart-api:
         condition: service_started
       order-api:
+        condition: service_started
+      shopper-tracking-api:
         condition: service_started
 
     networks:
@@ -468,6 +565,35 @@ services:
     networks:
       - booklover-network
 
+
+  # =========================================================
+  # WEB APPLICATION
+  # =========================================================
+  web:
+    container_name: booklover-web
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: src/Web/BookLoverECommerce.Web/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+
+      ApiGateway__BaseUrl: http://api-gateway:8080
+
+    ports:
+      - "5072:8080"
+
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+    networks:
+      - booklover-network
+
+
 # =========================================================
 # PERSISTENT VOLUMES
 # =========================================================
@@ -489,6 +615,10 @@ volumes:
 
   order_data:
     name: booklover-order-data
+
+  shopper_tracking_data:
+    name: booklover-shopper-tracking-data
+
 
 # =========================================================
 # NETWORK

@@ -1,5 +1,5 @@
 @page "{id:guid}"
-@model BookLoverECommerce.Web.Pages.Orders.DetailsModel
+@model BookLoverECommerce.Web.Pages.Orders.DetailsModel 
 
 @{
     ViewData["Title"] = "Order Details";
@@ -9,18 +9,33 @@
 
     <div class="container">
 
+        <!-- =========================
+             BACK LINK
+        ========================== -->
+
+        <a asp-page="/Orders/Index"
+           class="order-back-link">
+            ← Back to Orders
+        </a>
+
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mt-4">
+                @Model.ErrorMessage
+            </div>
+        }
+
+
         @if (Model.Order is not null)
         {
+            <!-- =========================
+                 ORDER HEADER
+            ========================== -->
+
             <div class="order-details-header">
 
                 <div>
-
-                    <a asp-page="/Orders/Index"
-                       class="order-back-link">
-
-                        ← Back to Orders
-
-                    </a>
 
                     <span class="section-label">
                         ORDER DETAILS
@@ -30,100 +45,206 @@
                         @Model.Order.OrderNumber
                     </h1>
 
-                    <p>
-                        Placed on
-                        @Model.Order.CreatedAtUtc
-                            .ToLocalTime()
-                            .ToString("MMMM dd, yyyy 'at' h:mm tt")
-                    </p>
 
-                </div>
+                    <div class="order-header-meta">
 
-
-                <span class="order-status order-status-@Model.Order.Status.ToLowerInvariant()">
-                    @Model.Order.Status
-                </span>
-
-            </div>
+                        <span class="order-date">
+    📅 Placed on
+    @(Model.Order.CreatedAtUtc
+        .ToLocalTime()
+        .ToString("MMMM dd, yyyy 'at' h:mm tt"))
+</span>
 
 
-            <div class="order-details-layout">
+                        @{
+                            var statusClass =
+                                Model.Order.Status?.ToLowerInvariant() switch
+                                {
+                                    "pendingpayment" => "status-pending",
+                                    "paid" => "status-paid",
+                                    "processing" => "status-processing",
+                                    "shipped" => "status-shipped",
+                                    "completed" => "status-completed",
+                                    "cancelled" => "status-cancelled",
+                                    _ => "status-default"
+                                };
+                        }
 
-                <main class="order-details-items">
-
-                    <div class="order-details-section-title">
-
-                        <h2>
-                            Purchased Items
-                        </h2>
-
-                        <span>
-                            @Model.Order.TotalQuantity item@(Model.Order.TotalQuantity == 1 ? "" : "s")
+                        <span class="order-status-badge @statusClass">
+                            @Model.Order.Status
                         </span>
 
                     </div>
 
+                </div>
 
-                    @foreach (var item in Model.Order.Items)
-                    {
-                        <article class="order-product">
+            </div>
 
-                            <div class="order-product-image">
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    item.ImageUrl))
-                                {
-                                    <img src="@item.ImageUrl"
-                                         alt="@item.ProductName" />
-                                }
-                                else
-                                {
-                                    <div class="order-product-placeholder">
-                                        📖
+            <!-- =========================
+                 MAIN LAYOUT
+            ========================== -->
+
+            <div class="order-details-layout">
+
+
+                <!-- =========================
+                     LEFT SIDE
+                ========================== -->
+
+                <main class="order-main-content">
+
+
+                    <!-- PURCHASED ITEMS -->
+
+                    <section class="order-card">
+
+                        <div class="order-card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    YOUR ORDER
+                                </span>
+
+                                <h2>
+                                    Purchased Items
+                                </h2>
+
+                            </div>
+
+
+                            <span class="order-item-count">
+                                @Model.Order.TotalQuantity
+                                item@(Model.Order.TotalQuantity == 1 ? "" : "s")
+                            </span>
+
+                        </div>
+
+
+                        <div class="order-items-list">
+
+                            @foreach (var item in Model.Order.Items)
+                            {
+                                <article class="order-item-row">
+
+
+                                    <!-- PRODUCT IMAGE -->
+
+                                    <div class="order-item-image">
+
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl"
+                                                 alt="@item.ProductName" />
+                                        }
+                                        else
+                                        {
+                                            <div class="order-item-placeholder">
+                                                📖
+                                            </div>
+                                        }
+
                                     </div>
-                                }
-
-                            </div>
 
 
-                            <div class="order-product-content">
+                                    <!-- PRODUCT INFO -->
 
-                                <h3>
-                                    @item.ProductName
-                                </h3>
+                                    <div class="order-item-info">
 
-                                <div class="order-product-meta">
+                                        <h3>
+                                            @item.ProductName
+                                        </h3>
 
-                                    <span>
-                                        Quantity:
+
+                                        <div class="order-item-meta">
+
+                                            <span>
+                                                Quantity:
+                                                <strong>
+                                                    @item.Quantity
+                                                </strong>
+                                            </span>
+
+                                            <span class="order-meta-dot">
+                                                •
+                                            </span>
+
+                                            <span>
+                                                Unit price:
+                                                <strong>
+                                                    @item.UnitPrice.ToString("C")
+                                                </strong>
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- TOTAL -->
+
+                                    <div class="order-item-total">
+
+                                        <span>
+                                            Item total
+                                        </span>
+
                                         <strong>
-                                            @item.Quantity
+                                            @item.LineTotal.ToString("C")
                                         </strong>
-                                    </span>
 
-                                    <span>
-                                        Unit price:
-                                        <strong>
-                                            @item.UnitPrice.ToString("C")
-                                        </strong>
-                                    </span>
+                                    </div>
 
-                                </div>
+                                </article>
+                            }
 
-                            </div>
+                        </div>
+
+                    </section>
 
 
-                            <strong class="order-product-total">
-                                @item.LineTotal.ToString("C")
-                            </strong>
+                    <!-- THANK YOU CARD -->
 
-                        </article>
-                    }
+                    <section class="order-thankyou-card">
+
+                        <div class="order-thankyou-icon">
+                            📦
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Thank you for your order!
+                            </h3>
+
+                            <p>
+                                Your order has been received successfully.
+                                You can track its status from your orders page.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- CONTINUE SHOPPING -->
+
+                    <a asp-page="/Products/Index"
+                       class="btn btn-dark btn-lg w-100 order-continue-button">
+
+                        Continue Shopping
+
+                    </a>
 
                 </main>
 
 
-                <aside class="order-details-summary">
+                <!-- =========================
+                     RIGHT SIDE SUMMARY
+                ========================== -->
+
+                <aside class="order-summary-card">
 
                     <span class="section-label">
                         PAYMENT SUMMARY
@@ -132,6 +253,19 @@
                     <h2>
                         Order Total
                     </h2>
+
+
+                    <div class="order-summary-highlight">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong>
+                            @Model.Order.Total.ToString("C")
+                        </strong>
+
+                    </div>
 
 
                     <div class="order-summary-row">
@@ -155,7 +289,7 @@
 
                         @if (Model.Order.ShippingAmount == 0)
                         {
-                            <strong class="text-success">
+                            <strong class="order-free">
                                 Free
                             </strong>
                         }
@@ -185,12 +319,66 @@
                     </div>
 
 
-                    <a asp-page="/Products/Index"
-                       class="btn btn-dark w-100">
+                    <!-- STATUS INFO -->
 
-                        Continue Shopping
+                    <div class="order-status-info">
 
-                    </a>
+                        @if (
+                            string.Equals(
+                                Model.Order.Status,
+                                "PendingPayment",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="order-status-message order-status-message-pending">
+
+                                <strong>
+                                    ⏳ Payment pending
+                                </strong>
+
+                                <p>
+                                    Your order has been created.
+                                    Payment confirmation is still pending.
+                                </p>
+
+                            </div>
+                        }
+                        else if (
+                            string.Equals(
+                                Model.Order.Status,
+                                "Processing",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="order-status-message">
+
+                                <strong>
+                                    📦 Order processing
+                                </strong>
+
+                                <p>
+                                    Your order is currently being prepared.
+                                </p>
+
+                            </div>
+                        }
+                        else if (
+                            string.Equals(
+                                Model.Order.Status,
+                                "Shipped",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="order-status-message">
+
+                                <strong>
+                                    🚚 Order shipped
+                                </strong>
+
+                                <p>
+                                    Your order is on its way.
+                                </p>
+
+                            </div>
+                        }
+                    </div>
 
                 </aside>
 

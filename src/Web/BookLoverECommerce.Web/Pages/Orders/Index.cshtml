@@ -154,11 +154,11 @@
                                 </strong>
 
                                 <span class="order-date">
-                                    Placed
-                                    @order.CreatedAtUtc
-                                        .ToLocalTime()
-                                        .ToString("MMM dd, yyyy")
-                                </span>
+    Placed
+    @(order.CreatedAtUtc
+        .ToLocalTime()
+        .ToString("MMM dd, yyyy 'at' h:mm tt"))
+</span>
 
                             </div>
 

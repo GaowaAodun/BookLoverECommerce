@@ -1,30 +1,38 @@
 using BookLoverECommerce.Web.Models.Orders;
 using BookLoverECommerce.Web.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BookLoverECommerce.Web.Pages.Orders;
 
-[Authorize]
 public sealed class IndexModel : PageModel
 {
-    private readonly IOrderApiClient _OrderApiClient;
+    private readonly IOrderApiClient _orderApiClient;
 
     public IndexModel(
-        IOrderApiClient OrderApiClient)
+        IOrderApiClient orderApiClient)
     {
-        _OrderApiClient = OrderApiClient;
+        _orderApiClient = orderApiClient;
     }
 
-    public IReadOnlyList<OrderViewModel> Orders
-        { get; private set; } =
-        Array.Empty<OrderViewModel>();
+    public IReadOnlyCollection<OrderViewModel> Orders
+        { get; private set; }
+        = Array.Empty<OrderViewModel>();
+
+    public string? ErrorMessage { get; private set; }
 
     public async Task OnGetAsync(
         CancellationToken cancellationToken)
     {
-        Orders =
-            await _OrderApiClient.GetOrdersAsync(
-                cancellationToken);
+        try
+        {
+            Orders =
+                await _orderApiClient.GetOrdersAsync(
+                    cancellationToken);
+        }
+        catch (HttpRequestException exception)
+        {
+            ErrorMessage =
+                $"Orders could not be loaded. {exception.Message}";
+        }
     }
 }

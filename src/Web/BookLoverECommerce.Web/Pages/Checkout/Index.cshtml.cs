@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using BookLoverECommerce.Web.Models.Checkout;
+using BookLoverECommerce.Web.Models.Orders;
 using BookLoverECommerce.Web.Models.Prices;
 using BookLoverECommerce.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,15 +15,18 @@ public sealed class IndexModel : PageModel
     private readonly ICartApiClient _cartApiClient;
     private readonly IProductsApiClient _productsApiClient;
     private readonly IPriceApiClient _priceApiClient;
+    private readonly IOrderApiClient _orderApiClient;
 
     public IndexModel(
         ICartApiClient cartApiClient,
         IProductsApiClient productsApiClient,
-        IPriceApiClient priceApiClient)
+        IPriceApiClient priceApiClient,
+        IOrderApiClient orderApiClient)
     {
         _cartApiClient = cartApiClient;
         _productsApiClient = productsApiClient;
         _priceApiClient = priceApiClient;
+        _orderApiClient = orderApiClient;
     }
 
     public CheckoutViewModel Checkout { get; private set; } =
@@ -32,55 +36,51 @@ public sealed class IndexModel : PageModel
 
     public string? ErrorMessage { get; private set; }
 
+
+    // =========================================
+    // SHIPPING ADDRESS FORM
+    // =========================================
+
+    [BindProperty]
+    public ShippingAddressRequest ShippingAddress { get; set; } =
+        new()
+        {
+            Country = "Canada"
+        };
+
+
+    // =========================================
+    // GET CHECKOUT
+    // =========================================
+
     public async Task<IActionResult> OnGetAsync(
         string? productIds,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(
+            ShippingAddress.Country))
+        {
+            ShippingAddress.Country =
+                "Canada";
+        }
+
+        await LoadCheckoutAsync(
+            productIds,
+            cancellationToken);
+
+        return Page();
+    }
+
+
+    // =========================================
+    // PLACE ORDER
+    // =========================================
+
+    public async Task<IActionResult> OnPostPlaceOrderAsync(
+        string? productIds,
+        CancellationToken cancellationToken)
+    {
         ProductIds = productIds;
-
-        // =========================================
-        // 1. VALIDATE SELECTED IDS
-        // =========================================
-
-        if (string.IsNullOrWhiteSpace(productIds))
-        {
-            ErrorMessage =
-                "No products were selected for checkout.";
-
-            return Page();
-        }
-
-        var selectedIds =
-            productIds
-                .Split(
-                    ',',
-                    StringSplitOptions.RemoveEmptyEntries |
-                    StringSplitOptions.TrimEntries)
-                .Select(value =>
-                {
-                    return Guid.TryParse(
-                        value,
-                        out var id)
-                        ? id
-                        : Guid.Empty;
-                })
-                .Where(id =>
-                    id != Guid.Empty)
-                .Distinct()
-                .ToHashSet();
-
-        if (selectedIds.Count == 0)
-        {
-            ErrorMessage =
-                "The selected product IDs were invalid.";
-
-            return Page();
-        }
-
-
-        // =========================================
-        // 2. GET CURRENT USER
-        // =========================================
 
         var userId =
             User.FindFirstValue(
@@ -92,10 +92,40 @@ public sealed class IndexModel : PageModel
         }
 
 
+        // If shipping address validation failed,
+        // reload checkout so validation messages
+        // can be displayed.
+        if (!ModelState.IsValid)
+        {
+            await LoadCheckoutAsync(
+                productIds,
+                cancellationToken);
+
+            return Page();
+        }
+
+
+        var selectedIds =
+            ParseProductIds(
+                productIds);
+
+        if (selectedIds.Count == 0)
+        {
+            ErrorMessage =
+                "No products were selected for this order.";
+
+            await LoadCheckoutAsync(
+                productIds,
+                cancellationToken);
+
+            return Page();
+        }
+
+
         try
         {
             // =====================================
-            // 3. GET CART
+            // GET CURRENT CART
             // =====================================
 
             var cart =
@@ -103,12 +133,210 @@ public sealed class IndexModel : PageModel
                     userId,
                     cancellationToken);
 
+            if (cart is null ||
+                cart.Items.Count == 0)
+            {
+                ErrorMessage =
+                    "Your cart is empty.";
+
+                await LoadCheckoutAsync(
+                    productIds,
+                    cancellationToken);
+
+                return Page();
+            }
+
+
+            // =====================================
+            // ONLY SELECTED CART ITEMS
+            // =====================================
+
+            var selectedCartItems =
+                cart.Items
+                    .Where(item =>
+                        selectedIds.Contains(
+                            item.ProductId))
+                    .ToList();
+
+
+            if (selectedCartItems.Count == 0)
+            {
+                ErrorMessage =
+                    "The selected products could not be found in your cart.";
+
+                await LoadCheckoutAsync(
+                    productIds,
+                    cancellationToken);
+
+                return Page();
+            }
+
+
+            // =====================================
+            // CREATE ORDER REQUEST
+            // =====================================
+
+            var request =
+                new CreateOrderRequest
+                {
+                    Items =
+                        selectedCartItems
+                            .Select(item =>
+                                new CreateOrderItemRequest
+                                {
+                                    ProductId =
+                                        item.ProductId,
+
+                                    Quantity =
+                                        item.Quantity
+                                })
+                            .ToArray(),
+
+                    ShippingAddress =
+                        ShippingAddress
+                };
+
+
+            // =====================================
+            // CALL ORDER API
+            //
+            // POST /api/orders
+            // =====================================
+
+            var order =
+                await _orderApiClient.CreateOrderAsync(
+                    request,
+                    cancellationToken);
+
+
+            // =====================================
+            // SUCCESS
+            // =====================================
+
+            TempData["SuccessMessage"] =
+                $"Order {order.OrderNumber} was placed successfully.";
+
+
+            // For now we DO NOT remove cart items.
+            // We will add that after Order creation
+            // has been tested successfully.
+
+
+            // =====================================
+            // REDIRECT TO ORDER DETAILS
+            // =====================================
+
+            return RedirectToPage(
+                "/Orders/Details",
+                new
+                {
+                    id = order.Id
+                });
+        }
+        catch (HttpRequestException exception)
+        {
+            ErrorMessage =
+                $"Order could not be created. {exception.Message}";
+
+            await LoadCheckoutAsync(
+                productIds,
+                cancellationToken);
+
+            return Page();
+        }
+        catch (Exception exception)
+        {
+            ErrorMessage =
+                $"Something went wrong while placing your order. " +
+                $"{exception.Message}";
+
+            await LoadCheckoutAsync(
+                productIds,
+                cancellationToken);
+
+            return Page();
+        }
+    }
+
+
+    // =========================================
+    // LOAD CHECKOUT
+    // =========================================
+
+    private async Task LoadCheckoutAsync(
+        string? productIds,
+        CancellationToken cancellationToken)
+    {
+        ProductIds =
+            productIds;
+
+        Checkout =
+            new CheckoutViewModel();
+
+
+        // =====================================
+        // VALIDATE PRODUCT IDS
+        // =====================================
+
+        if (string.IsNullOrWhiteSpace(productIds))
+        {
+            ErrorMessage =
+                "No products were selected for checkout.";
+
+            return;
+        }
+
+
+        var selectedIds =
+            ParseProductIds(
+                productIds);
+
+
+        if (selectedIds.Count == 0)
+        {
+            ErrorMessage =
+                "The selected product IDs were invalid.";
+
+            return;
+        }
+
+
+        // =====================================
+        // CURRENT USER
+        // =====================================
+
+        var userId =
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            ErrorMessage =
+                "Your user account could not be identified.";
+
+            return;
+        }
+
+
+        try
+        {
+            // =================================
+            // GET CART
+            // =================================
+
+            var cart =
+                await _cartApiClient.GetCartAsync(
+                    userId,
+                    cancellationToken);
+
+
             if (cart is null)
             {
                 ErrorMessage =
                     "Your cart could not be loaded.";
 
-                return Page();
+                return;
             }
 
 
@@ -125,13 +353,13 @@ public sealed class IndexModel : PageModel
                 ErrorMessage =
                     "The selected products were not found in your cart.";
 
-                return Page();
+                return;
             }
 
 
-            // =====================================
-            // 4. CALL PRICE API
-            // =====================================
+            // =================================
+            // PRICE QUOTE
+            // =================================
 
             var priceRequest =
                 new PriceQuoteRequest
@@ -157,27 +385,19 @@ public sealed class IndexModel : PageModel
                     cancellationToken);
 
 
-            if (quote is null)
+            if (quote is null ||
+                quote.Items.Count == 0)
             {
                 ErrorMessage =
-                    "The Price API returned no pricing information.";
+                    "Pricing information could not be loaded.";
 
-                return Page();
+                return;
             }
 
 
-            if (quote.Items.Count == 0)
-            {
-                ErrorMessage =
-                    "The Price API returned no prices for the selected products.";
-
-                return Page();
-            }
-
-
-            // =====================================
-            // 5. GET PRODUCT INFORMATION
-            // =====================================
+            // =================================
+            // PRODUCT INFORMATION
+            // =================================
 
             var products =
                 (await _productsApiClient
@@ -186,22 +406,9 @@ public sealed class IndexModel : PageModel
                     .ToList();
 
 
-            if (products.Count == 0)
-            {
-                ErrorMessage =
-                    "Product information could not be loaded.";
-
-                return Page();
-            }
-
-
-            // =====================================
-            // 6. MERGE:
-            //
-            // CART     = quantity
-            // PRODUCT  = name/image/category
-            // PRICE    = real checkout price
-            // =====================================
+            // =================================
+            // MERGE DATA
+            // =================================
 
             foreach (var cartItem in selectedCartItems)
             {
@@ -219,13 +426,8 @@ public sealed class IndexModel : PageModel
                             cartItem.ProductId);
 
 
-                if (product is null)
-                {
-                    continue;
-                }
-
-
-                if (price is null)
+                if (product is null ||
+                    price is null)
                 {
                     continue;
                 }
@@ -261,22 +463,18 @@ public sealed class IndexModel : PageModel
             }
 
 
-            // =====================================
-            // 7. VERIFY MERGED ITEMS
-            // =====================================
-
             if (Checkout.Items.Count == 0)
             {
                 ErrorMessage =
-                    "The cart products could not be matched with Product and Price information.";
+                    "The selected products could not be prepared for checkout.";
 
-                return Page();
+                return;
             }
 
 
-            // =====================================
-            // 8. FINAL TOTALS
-            // =====================================
+            // =================================
+            // TOTALS
+            // =================================
 
             Checkout.Subtotal =
                 quote.Subtotal;
@@ -289,40 +487,49 @@ public sealed class IndexModel : PageModel
                     quote.Currency)
                     ? "CAD"
                     : quote.Currency;
-
-
-            return Page();
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException exception)
         {
             ErrorMessage =
-                $"A service could not be reached: {ex.Message}";
-
-            return Page();
+                $"A service could not be reached: " +
+                $"{exception.Message}";
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
             ErrorMessage =
-                $"Checkout could not be prepared: {ex.Message}";
-
-            return Page();
+                $"Checkout could not be prepared: " +
+                $"{exception.Message}";
         }
     }
 
 
-    public IActionResult OnPostPlaceOrder(
+    // =========================================
+    // PARSE PRODUCT IDS
+    // =========================================
+
+    private static HashSet<Guid> ParseProductIds(
         string? productIds)
     {
-        /*
-         * We will connect this to the Order API next.
-         *
-         * DO NOT remove the products from Cart here yet.
-         */
+        if (string.IsNullOrWhiteSpace(productIds))
+        {
+            return new HashSet<Guid>();
+        }
 
-        TempData["SuccessMessage"] =
-            "Checkout pricing was verified successfully.";
 
-        return RedirectToPage(
-            "/Cart/Index");
+        return productIds
+            .Split(
+                ',',
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries)
+            .Select(value =>
+                Guid.TryParse(
+                    value,
+                    out var id)
+                    ? id
+                    : Guid.Empty)
+            .Where(id =>
+                id != Guid.Empty)
+            .Distinct()
+            .ToHashSet();
     }
 }
