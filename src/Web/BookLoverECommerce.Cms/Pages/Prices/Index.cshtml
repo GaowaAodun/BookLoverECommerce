@@ -1,0 +1,191 @@
+@page
+@model BookLoverECommerce.Cms.Pages.Prices.IndexModel
+
+@{
+    ViewData["Title"] = "Prices";
+}
+
+<div class="d-flex justify-content-between
+            align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-1">Prices</h1>
+
+        <p class="text-muted mb-0">
+            Manage product prices and scheduled sales.
+        </p>
+    </div>
+
+    <a asp-page="/Prices/Create"
+       class="btn btn-primary">
+        Add price
+    </a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert">
+        @Model.SuccessMessage
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close">
+        </button>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
+@if (Model.Prices.Count == 0 &&
+     string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <h2 class="h5">No prices found</h2>
+
+            <p class="text-muted">
+                Add a price to one of your products.
+            </p>
+
+            <a asp-page="/Prices/Create"
+               class="btn btn-primary">
+                Add price
+            </a>
+        </div>
+    </div>
+}
+else if (Model.Prices.Count > 0)
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-end">Base price</th>
+                        <th class="text-end">Sale price</th>
+                        <th class="text-end">Effective price</th>
+                        <th>Sale period</th>
+                        <th>Status</th>
+                        <th>Updated</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model.Prices)
+                    {
+                        var price = item.Price;
+
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">
+                                    @item.ProductName;
+                                </div>
+
+                                <small class="text-muted">
+                                    @price.ProductId
+                                </small>
+                            </td>
+
+                            <td class="text-end">
+                                @price.Currency
+                                @price.BasePrice.ToString("C")
+                            </td>
+
+                            <td class="text-end">
+                                @if (price.SalePrice.HasValue)
+                                {
+                                    <span>
+                                        @price.Currency
+                                        @price.SalePrice.Value.ToString("C")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <td class="text-end fw-semibold">
+                                @price.Currency
+                                @price.EffectivePrice.ToString("C")
+                            </td>
+
+                            <td>
+                                @if (price.SaleStartDate.HasValue ||
+                                     price.SaleEndDate.HasValue)
+                                {
+                                    <small>
+                                        @(price.SaleStartDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                            ?? "Immediately")
+
+                                        <br />
+
+                                        to
+
+                                        @(price.SaleEndDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                            ?? "No end date")
+                                    </small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (price.IsSaleActive)
+                                {
+                                    <span class="badge bg-success">
+                                        On sale
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Regular
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @(price.UpdatedAt.ToString("yyyy-MM-dd"))
+                            </td>
+
+                            <td class="text-end">
+                                <div class="d-flex flex-wrap gap-2
+                                            justify-content-end">
+                                    <a asp-page="/Prices/Edit"
+                                       asp-route-id="@price.Id"
+                                       class="btn btn-sm
+                                              btn-outline-primary">
+                                        Edit
+                                    </a>
+
+                                    <form method="post"
+                                          asp-page-handler="Delete"
+                                          asp-route-id="@price.Id"
+                                          onsubmit="return confirm(
+                                          'Delete this price?');">
+                                        <button type="submit"
+                                                class="btn btn-sm
+                                                       btn-outline-danger">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

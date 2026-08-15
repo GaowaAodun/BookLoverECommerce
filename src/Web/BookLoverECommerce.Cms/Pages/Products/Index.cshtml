@@ -176,9 +176,7 @@ else if (Model.Products.Count > 0)
                             </td>
 
                             <td>
-                                @(product.CreatedAtUtc
-                                .ToLocalTime()
-                                .ToString("yyyy-MM-dd"))
+                                @(product.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd"));
                             </td>
 
                             @if (isAdmin)
