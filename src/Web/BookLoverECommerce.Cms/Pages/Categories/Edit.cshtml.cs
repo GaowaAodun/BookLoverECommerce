@@ -151,7 +151,7 @@ public sealed class EditModel : PageModel
                 $"api/categories/{Id}",
                 command,
                 cancellationToken);
-
+            
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return RedirectToLogin();
