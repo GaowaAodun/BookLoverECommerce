@@ -3,9 +3,11 @@
   <ItemGroup>
     <ProjectReference Include="..\BookLoverECommerce.Cart.Application\BookLoverECommerce.Cart.Application.csproj" />
     <ProjectReference Include="..\BookLoverECommerce.Cart.Domain\BookLoverECommerce.Cart.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\BookLoverECommerce.Contracts\BookLoverECommerce.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

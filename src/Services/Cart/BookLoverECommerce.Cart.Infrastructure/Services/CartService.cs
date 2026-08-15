@@ -1,16 +1,22 @@
 using BookLoverECommerce.Cart.Application.DTOs;
 using BookLoverECommerce.Cart.Application.Interfaces;
 using BookLoverECommerce.Cart.Domain.Entities;
+using BookLoverECommerce.Contracts.Tracking;
+using MassTransit;
 
 namespace BookLoverECommerce.Cart.Infrastructure.Services;
 
 public class CartService : ICartService
 {
     private readonly ICartRepository _repository;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public CartService(ICartRepository repository)
+    public CartService(
+        ICartRepository repository,
+        IPublishEndpoint publishEndpoint)
     {
         _repository = repository;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<CartResponse> GetCartAsync(
@@ -21,7 +27,8 @@ public class CartService : ICartService
             userId,
             cancellationToken);
 
-        await _repository.SaveChangesAsync(cancellationToken);
+        await _repository.SaveChangesAsync(
+            cancellationToken);
 
         return Map(cart);
     }
@@ -35,21 +42,29 @@ public class CartService : ICartService
             userId,
             cancellationToken);
 
-        var existingItem = cart.Items.SingleOrDefault(
-            item => item.ProductId == request.ProductId);
+        var existingItem =
+            cart.Items.SingleOrDefault(
+                item =>
+                    item.ProductId ==
+                    request.ProductId);
 
         if (existingItem is null)
         {
-            cart.Items.Add(new CartItem
-            {
-                ProductId = request.ProductId,
-                Quantity = request.Quantity
-            });
+            cart.Items.Add(
+                new CartItem
+                {
+                    ProductId =
+                        request.ProductId,
+
+                    Quantity =
+                        request.Quantity
+                });
         }
         else
         {
             var newQuantity =
-                existingItem.Quantity + request.Quantity;
+                existingItem.Quantity +
+                request.Quantity;
 
             if (newQuantity > 100)
             {
@@ -58,12 +73,28 @@ public class CartService : ICartService
                     "The total quantity of a cart item cannot exceed 100.");
             }
 
-            existingItem.Quantity = newQuantity;
+            existingItem.Quantity =
+                newQuantity;
         }
 
-        cart.UpdatedAt = DateTime.UtcNow;
+        cart.UpdatedAt =
+            DateTime.UtcNow;
 
-        await _repository.SaveChangesAsync(cancellationToken);
+        // Save cart first.
+        await _repository.SaveChangesAsync(
+            cancellationToken);
+
+        // =========================================
+        // PUBLISH SHOPPER TRACKING EVENT
+        // =========================================
+
+        await _publishEndpoint.Publish(
+            new ItemAddedToCart(
+                userId,
+                request.ProductId,
+                request.Quantity,
+                DateTimeOffset.UtcNow),
+            cancellationToken);
 
         return Map(cart);
     }
@@ -73,27 +104,35 @@ public class CartService : ICartService
         UpdateCartItemRequest request,
         CancellationToken cancellationToken = default)
     {
-        var cart = await _repository.GetByUserIdAsync(
-            userId,
-            cancellationToken);
+        var cart =
+            await _repository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
 
         if (cart is null)
         {
             return null;
         }
 
-        var item = cart.Items.SingleOrDefault(
-            cartItem => cartItem.ProductId == request.ProductId);
+        var item =
+            cart.Items.SingleOrDefault(
+                cartItem =>
+                    cartItem.ProductId ==
+                    request.ProductId);
 
         if (item is null)
         {
             return null;
         }
 
-        item.Quantity = request.Quantity;
-        cart.UpdatedAt = DateTime.UtcNow;
+        item.Quantity =
+            request.Quantity;
 
-        await _repository.SaveChangesAsync(cancellationToken);
+        cart.UpdatedAt =
+            DateTime.UtcNow;
+
+        await _repository.SaveChangesAsync(
+            cancellationToken);
 
         return Map(cart);
     }
@@ -103,17 +142,21 @@ public class CartService : ICartService
         RemoveCartItemRequest request,
         CancellationToken cancellationToken = default)
     {
-        var cart = await _repository.GetByUserIdAsync(
-            userId,
-            cancellationToken);
+        var cart =
+            await _repository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
 
         if (cart is null)
         {
             return null;
         }
 
-        var item = cart.Items.SingleOrDefault(
-            cartItem => cartItem.ProductId == request.ProductId);
+        var item =
+            cart.Items.SingleOrDefault(
+                cartItem =>
+                    cartItem.ProductId ==
+                    request.ProductId);
 
         if (item is null)
         {
@@ -121,27 +164,43 @@ public class CartService : ICartService
         }
 
         cart.Items.Remove(item);
-        cart.UpdatedAt = DateTime.UtcNow;
 
-        await _repository.SaveChangesAsync(cancellationToken);
+        cart.UpdatedAt =
+            DateTime.UtcNow;
+
+        await _repository.SaveChangesAsync(
+            cancellationToken);
 
         return Map(cart);
     }
 
-    private static CartResponse Map(ShoppingCart cart)
+    private static CartResponse Map(
+        ShoppingCart cart)
     {
         return new CartResponse
         {
-            CartId = cart.Id,
-            UserId = cart.UserId,
-            UpdatedAt = cart.UpdatedAt,
-            Items = cart.Items
-                .Select(item => new CartItemResponse
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity
-                })
-                .ToList()
+            CartId =
+                cart.Id,
+
+            UserId =
+                cart.UserId,
+
+            UpdatedAt =
+                cart.UpdatedAt,
+
+            Items =
+                cart.Items
+                    .Select(
+                        item =>
+                            new CartItemResponse
+                            {
+                                ProductId =
+                                    item.ProductId,
+
+                                Quantity =
+                                    item.Quantity
+                            })
+                    .ToList()
         };
     }
 }

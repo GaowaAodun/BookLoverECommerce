@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using BookLoverECommerce.Auth.Api.OpenApi;
 using System.Text;
 using BookLoverECommerce.Auth.Application.Configuration;
 using BookLoverECommerce.Auth.Infrastructure;
@@ -6,6 +7,7 @@ using BookLoverECommerce.Auth.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,7 +63,11 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<
+        BearerSecuritySchemeTransformer>();
+});
 
 builder.Services
     .AddHealthChecks()

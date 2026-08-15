@@ -40,6 +40,12 @@
     <Project Path="src/Services/Products/BookLoverECommerce.Products.Domain/BookLoverECommerce.Products.Domain.csproj" />
     <Project Path="src/Services/Products/BookLoverECommerce.Products.Infrastructure/BookLoverECommerce.Products.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Services/ShopperTracking/">
+    <Project Path="src/Services/ShopperTracking/BookLoverECommerce.ShopperTracking.Api/BookLoverECommerce.ShopperTracking.Api.csproj" />
+    <Project Path="src/Services/ShopperTracking/BookLoverECommerce.ShopperTracking.Application/BookLoverECommerce.ShopperTracking.Application.csproj" />
+    <Project Path="src/Services/ShopperTracking/BookLoverECommerce.ShopperTracking.Domain/BookLoverECommerce.ShopperTracking.Domain.csproj" />
+    <Project Path="src/Services/ShopperTracking/BookLoverECommerce.ShopperTracking.Infrastructure/BookLoverECommerce.ShopperTracking.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Web/">
     <Project Path="src/Web/BookLoverECommerce.Cms/BookLoverECommerce.Cms.csproj" />
     <Project Path="src/Web/BookLoverECommerce.Web/BookLoverECommerce.Web.csproj" />

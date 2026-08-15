@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit.RabbitMQ" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookLoverECommerce.ShopperTracking.Application\BookLoverECommerce.ShopperTracking.Application.csproj" />
+    <ProjectReference Include="..\BookLoverECommerce.ShopperTracking.Infrastructure\BookLoverECommerce.ShopperTracking.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\BookLoverECommerce.Contracts\BookLoverECommerce.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

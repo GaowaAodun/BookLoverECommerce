@@ -1,0 +1,375 @@
+@page "{id:guid}"
+@model BookLoverECommerce.Web.Pages.Products.DetailsModel
+
+@{
+    var product = Model.Product;
+
+    ViewData["Title"] =
+        product?.Title ?? "Product Details";
+}
+
+<section class="product-details-page">
+
+    <div class="container">
+
+        <!-- BACK LINK -->
+        <div class="details-top-navigation">
+
+            <a asp-page="/Products/Index"
+               class="details-back-link">
+                ← Back to Products
+            </a>
+
+        </div>
+
+
+        <!-- ERROR -->
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+        else if (product is not null)
+        {
+            <!-- PRODUCT -->
+
+            <div class="product-details-grid">
+
+
+                <!-- =====================
+                     LEFT SIDE
+                     PRODUCT IMAGE
+                ====================== -->
+
+                <div class="details-image-wrapper">
+
+                    <div class="details-image">
+
+                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl"
+                                 alt="@product.Title" />
+                        }
+                        else
+                        {
+                            <div class="details-placeholder">
+
+                                <span class="details-placeholder-icon">
+                                    📖
+                                </span>
+
+                                <span>
+                                    No cover available
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================
+                     RIGHT SIDE
+                     PRODUCT INFORMATION
+                ====================== -->
+
+                <div class="details-content">
+
+
+                    <!-- CATEGORY -->
+                    @if (!string.IsNullOrWhiteSpace(product.Category))
+                    {
+                        <span class="details-category">
+                            @product.Category
+                        </span>
+                    }
+
+
+                    <!-- TITLE -->
+                    <h1 class="details-title">
+                        @product.Title
+                    </h1>
+
+
+                    <!-- AUTHOR -->
+                    @if (!string.IsNullOrWhiteSpace(product.Author))
+                    {
+                        <p class="details-author">
+                            by
+                            <strong>
+                                @product.Author
+                            </strong>
+                        </p>
+                    }
+
+
+                    <!-- DESCRIPTION -->
+                    @if (!string.IsNullOrWhiteSpace(product.Description))
+                    {
+                        <div class="details-description">
+
+                            <span class="details-small-heading">
+                                ABOUT THIS PRODUCT
+                            </span>
+
+                            <p>
+                                @product.Description
+                            </p>
+
+                        </div>
+                    }
+
+
+                    <!-- PRODUCT INFORMATION -->
+                    <div class="details-info">
+
+                        <div class="details-info-item">
+
+                            <span class="details-info-label">
+                                Product ID
+                            </span>
+
+                            <strong>
+                                #@product.Id
+                            </strong>
+
+                        </div>
+
+
+                        @if (!string.IsNullOrWhiteSpace(product.Category))
+                        {
+                            <div class="details-info-item">
+
+                                <span class="details-info-label">
+                                    Category
+                                </span>
+
+                                <strong>
+                                    @product.Category
+                                </strong>
+
+                            </div>
+                        }
+
+
+                        <div class="details-info-item">
+
+                            <span class="details-info-label">
+                                Availability
+                            </span>
+
+                            <strong class="details-available">
+                                Available
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PRICE -->
+                    <div class="details-price-section">
+
+                        <span class="details-price-label">
+                            Price
+                        </span>
+
+                        <div class="details-price">
+                            @product.Price.ToString("C")
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================
+                         AUTHENTICATED USER
+                    ====================== -->
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form method="post"
+                              asp-page="/Cart/Index"
+                              asp-page-handler="Add"
+                              class="details-cart-form">
+
+                            <input type="hidden"
+                                   name="productId"
+                                   value="@product.Id" />
+
+                            <input type="hidden"
+                                   name="returnUrl"
+                                   value="@Request.Path" />
+
+
+                            <!-- QUANTITY -->
+                            <div class="quantity-section">
+
+                                <label for="quantity"
+                                       class="form-label">
+                                    Quantity
+                                </label>
+
+                                <div class="quantity-control">
+
+                                    <button type="button"
+                                            class="quantity-button"
+                                            onclick="decreaseQuantity()"
+                                            aria-label="Decrease quantity">
+                                        −
+                                    </button>
+
+
+                                    <input id="quantity"
+                                           name="quantity"
+                                           type="number"
+                                           value="1"
+                                           min="1"
+                                           max="100"
+                                           class="quantity-input" />
+
+
+                                    <button type="button"
+                                            class="quantity-button"
+                                            onclick="increaseQuantity()"
+                                            aria-label="Increase quantity">
+                                        +
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- CART BUTTON -->
+                            <button type="submit"
+                                    class="details-add-button">
+
+                                Add to Cart
+
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- GUEST -->
+
+                        <div class="details-login-box">
+
+                            <p>
+                                Sign in to add this product to your cart.
+                            </p>
+
+                            <a asp-page="/Account/Login"
+                               asp-route-returnUrl="@Request.Path"
+                               class="details-add-button">
+
+                                Login to Add to Cart
+
+                            </a>
+
+                        </div>
+                    }
+
+
+                    <!-- EXTRA INFO -->
+                    <div class="details-benefits">
+
+                        <div>
+                            <span>✓</span>
+                            Secure shopping
+                        </div>
+
+                        <div>
+                            <span>✓</span>
+                            Easy cart management
+                        </div>
+
+                        <div>
+                            <span>✓</span>
+                            Fast product browsing
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <!-- NOT FOUND -->
+
+            <div class="details-not-found">
+
+                <div class="details-not-found-icon">
+                    📚
+                </div>
+
+                <h2>
+                    Product not found
+                </h2>
+
+                <p>
+                    This product does not exist or is no longer available.
+                </p>
+
+                <a asp-page="/Products/Index"
+                   class="btn btn-dark">
+
+                    Browse Products
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</section>
+
+
+@section Scripts
+{
+    <script>
+
+        function increaseQuantity() {
+
+            const input =
+                document.getElementById("quantity");
+
+            if (!input) {
+                return;
+            }
+
+            let quantity =
+                parseInt(input.value) || 1;
+
+            if (quantity < 100) {
+                input.value = quantity + 1;
+            }
+        }
+
+
+        function decreaseQuantity() {
+
+            const input =
+                document.getElementById("quantity");
+
+            if (!input) {
+                return;
+            }
+
+            let quantity =
+                parseInt(input.value) || 1;
+
+            if (quantity > 1) {
+                input.value = quantity - 1;
+            }
+        }
+
+    </script>
+}

@@ -12,7 +12,8 @@ public sealed class LoginModel : PageModel
 {
     private readonly IAuthApiClient _authApiClient;
 
-    public LoginModel(IAuthApiClient authApiClient)
+    public LoginModel(
+        IAuthApiClient authApiClient)
     {
         _authApiClient = authApiClient;
     }
@@ -20,9 +21,11 @@ public sealed class LoginModel : PageModel
     [BindProperty]
     public LoginRequest Input { get; set; } = new();
 
+    [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
 
-    public void OnGet(string? returnUrl = null)
+    public void OnGet(
+        string? returnUrl = null)
     {
         ReturnUrl = returnUrl;
     }
@@ -33,6 +36,7 @@ public sealed class LoginModel : PageModel
     {
         if (!ModelState.IsValid)
         {
+            ReturnUrl = returnUrl;
             return Page();
         }
 
@@ -43,28 +47,67 @@ public sealed class LoginModel : PageModel
                     Input,
                     cancellationToken);
 
-            var claims = new List<Claim>
+            if (string.IsNullOrWhiteSpace(result.UserId))
             {
-                new(
-                    ClaimTypes.NameIdentifier,
-                    result.UserId),
+                throw new InvalidOperationException(
+                    "Authentication response did not contain a user ID.");
+            }
 
-                new(
+            if (string.IsNullOrWhiteSpace(result.Username))
+            {
+                throw new InvalidOperationException(
+                    "Authentication response did not contain a username.");
+            }
+
+            if (string.IsNullOrWhiteSpace(result.Token))
+            {
+                throw new InvalidOperationException(
+                    "Authentication response did not contain an access token.");
+            }
+
+            if (result.Roles is null ||
+                result.Roles.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Authentication response did not contain any roles.");
+            }
+
+            // Create the normal user claims
+            var claims =
+                new List<Claim>
+                {
+                    new(
+                        ClaimTypes.NameIdentifier,
+                        result.UserId),
+
+                    new(
+                        ClaimTypes.Name,
+                        result.Username),
+
+                    new(
+                        ClaimTypes.Email,
+                        result.Email)
+                };
+
+            // Add EVERY role returned by Auth
+            foreach (var role in result.Roles)
+            {
+                if (!string.IsNullOrWhiteSpace(role))
+                {
+                    claims.Add(
+                        new Claim(
+                            ClaimTypes.Role,
+                            role));
+                }
+            }
+
+            var identity =
+                new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults
+                        .AuthenticationScheme,
                     ClaimTypes.Name,
-                    result.UserName),
-
-                new(
-                    ClaimTypes.Email,
-                    result.Email),
-
-                new(
-                    ClaimTypes.Role,
-                    result.Role)
-            };
-
-            var identity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme);
+                    ClaimTypes.Role);
 
             var principal =
                 new ClaimsPrincipal(identity);
@@ -74,11 +117,15 @@ public sealed class LoginModel : PageModel
                 {
                     IsPersistent = false,
                     AllowRefresh = true,
+
                     ExpiresUtc =
-                        result.ExpiresAt
-                        ?? DateTimeOffset.UtcNow.AddMinutes(60)
+                        result.ExpiresAt == default
+                            ? DateTimeOffset.UtcNow.AddMinutes(60)
+                            : new DateTimeOffset(result.ExpiresAt)
                 };
 
+            // Store JWT so GatewayAuthorized
+            // can send it to Cart/Product APIs
             properties.StoreTokens(
             [
                 new AuthenticationToken
@@ -89,14 +136,18 @@ public sealed class LoginModel : PageModel
             ]);
 
             await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
+                CookieAuthenticationDefaults
+                    .AuthenticationScheme,
                 principal,
                 properties);
 
-            if (!string.IsNullOrWhiteSpace(returnUrl) &&
-                Url.IsLocalUrl(returnUrl))
+            var destination =
+                returnUrl ?? ReturnUrl;
+
+            if (!string.IsNullOrWhiteSpace(destination) &&
+                Url.IsLocalUrl(destination))
             {
-                return LocalRedirect(returnUrl);
+                return LocalRedirect(destination);
             }
 
             return RedirectToPage("/Index");
@@ -107,15 +158,19 @@ public sealed class LoginModel : PageModel
                 string.Empty,
                 ex.Message);
 
+            ReturnUrl = returnUrl;
+
             return Page();
         }
         catch (HttpRequestException ex)
-{
-    ModelState.AddModelError(
-        string.Empty,
-        $"Login service error: {ex.Message}");
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                $"Login service error: {ex.Message}");
 
-    return Page();
-}
+            ReturnUrl = returnUrl;
+
+            return Page();
+        }
     }
 }

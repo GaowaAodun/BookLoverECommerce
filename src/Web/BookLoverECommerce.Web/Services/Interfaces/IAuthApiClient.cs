@@ -11,4 +11,24 @@ public interface IAuthApiClient
     Task<AuthResponse> LoginAsync(
         LoginRequest request,
         CancellationToken cancellationToken = default);
+        Task<ProfileResponse?> GetProfileAsync(
+    CancellationToken cancellationToken = default);
+
+Task<ProfileResponse?> UpdateProfileAsync(
+    UpdateProfileRequest request,
+    CancellationToken cancellationToken = default);
+    Task ChangeEmailAsync(
+    ChangeEmailRequest request,
+    CancellationToken cancellationToken = default);
+
+Task ChangePasswordAsync(
+    ChangePasswordRequest request,
+    CancellationToken cancellationToken = default);
+    Task<ForgotPasswordResponse> ForgotPasswordAsync(
+    ForgotPasswordRequest request,
+    CancellationToken cancellationToken = default);
+
+Task ResetPasswordAsync(
+    ResetPasswordRequest request,
+    CancellationToken cancellationToken = default);
 }

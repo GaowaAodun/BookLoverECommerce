@@ -27,4 +27,7 @@ public interface IProductPriceService
     Task DeleteAsync(
         Guid id,
         CancellationToken cancellationToken = default);
+        Task<PriceQuoteResponse> GetQuoteAsync(
+    PriceQuoteRequest request,
+    CancellationToken cancellationToken = default);
 }

@@ -1,60 +1,154 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+﻿@using System.Security.Claims
+@inject IWebHostEnvironment WebHostEnvironment
 
-    <title>@ViewData["Title"] - BookLover</title>
+@{
+    var navbarProfileImageUrl = "";
+
+    var navbarUserId =
+        User.FindFirstValue(
+            ClaimTypes.NameIdentifier);
+
+    if (!string.IsNullOrWhiteSpace(navbarUserId))
+    {
+        var profileFolder =
+            System.IO.Path.Combine(
+                WebHostEnvironment.WebRootPath,
+                "uploads",
+                "profiles");
+
+        var extensions =
+            new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            };
+
+        foreach (var extension in extensions)
+        {
+            var fileName =
+                $"{navbarUserId}{extension}";
+
+            var fullPath =
+                System.IO.Path.Combine(
+                    profileFolder,
+                    fileName);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                navbarProfileImageUrl =
+                    $"/uploads/profiles/{fileName}";
+
+                break;
+            }
+        }
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - BookLover
+    </title>
+
 
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
+
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
+
 </head>
+
 
 <body>
 
+
+    <!-- =========================================
+         NAVBAR
+    ========================================== -->
+
     <header>
+
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
 
             <div class="container">
 
+
+                <!-- BRAND -->
+
                 <a class="navbar-brand brand-logo"
                    asp-page="/Index">
+
                     BookLover
+
                 </a>
+
+
+                <!-- MOBILE TOGGLER -->
 
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar">
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
 
                     <span class="navbar-toggler-icon"></span>
+
                 </button>
+
+
+                <!-- NAVIGATION -->
 
                 <div class="collapse navbar-collapse"
                      id="mainNavbar">
 
+
+                    <!-- LEFT NAV -->
+
                     <ul class="navbar-nav me-3">
 
                         <li class="nav-item">
+
                             <a class="nav-link"
                                asp-page="/Index">
+
                                 Home
+
                             </a>
+
                         </li>
 
+
                         <li class="nav-item">
+
                             <a class="nav-link"
                                asp-page="/Products/Index">
+
                                 Products
+
                             </a>
+
                         </li>
 
                     </ul>
 
+
+                    <!-- SEARCH -->
 
                     <form method="get"
                           asp-page="/Products/Index"
@@ -72,54 +166,206 @@
                     </form>
 
 
-                    <ul class="navbar-nav align-items-lg-center">
+                    <!-- RIGHT NAV -->
+
+                    <ul class="navbar-nav align-items-lg-center ms-auto">
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-page="/Orders/Index">
-                                    Orders
+                            <!-- CART -->
+
+                            <li class="nav-item me-lg-2">
+
+                                <a class="nav-link nav-cart-link"
+                                   asp-page="/Cart/Index">
+
+                                    <span class="nav-action-icon">
+                                        🛒
+                                    </span>
+
+                                    <span>
+                                        Cart
+                                    </span>
+
                                 </a>
+
                             </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-page="/Cart/Index">
-                                    Cart
-                                </a>
-                            </li>
+
+                            <!-- PROFILE -->
 
                             <li class="nav-item dropdown">
 
-                                <a class="nav-link dropdown-toggle"
+                                <a class="nav-link dropdown-toggle nav-profile-link"
                                    href="#"
-                                   data-bs-toggle="dropdown">
-                                    Profile
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+
+
+                                    <!-- PROFILE AVATAR -->
+
+                                    <span class="nav-profile-avatar">
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            navbarProfileImageUrl))
+                                        {
+                                            <img src="@navbarProfileImageUrl"
+                                                 class="nav-profile-image"
+                                                 alt="Profile picture" />
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(
+                                            User.Identity?.Name))
+                                        {
+                                            @char.ToUpper(
+                                                User.Identity!.Name[0])
+                                        }
+                                        else
+                                        {
+                                            <span>👤</span>
+                                        }
+
+                                    </span>
+
+
+                                    <!-- USERNAME -->
+
+                                    <span class="nav-profile-name">
+                                        @User.Identity?.Name
+                                    </span>
+
                                 </a>
 
-                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                <!-- ==============================
+                                     PROFILE DROPDOWN
+                                =============================== -->
+
+                                <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
+
+
+                                    <!-- MY PROFILE -->
 
                                     <li>
-                                        <span class="dropdown-item-text">
-                                            @User.Identity.Name
-                                        </span>
+
+                                        <a class="dropdown-item profile-menu-item"
+                                           asp-page="/Account/Profile">
+
+                                            <span class="profile-menu-icon">
+                                                👤
+                                            </span>
+
+                                            <div class="profile-menu-text">
+
+                                                <strong>
+                                                    My Profile
+                                                </strong>
+
+                                                <small>
+                                                    Account & profile picture
+                                                </small>
+
+                                            </div>
+
+                                        </a>
+
                                     </li>
+
+
+                                    <!-- ORDERS -->
+
+                                    <li>
+
+                                        <a class="dropdown-item profile-menu-item"
+                                           asp-page="/Orders/Index">
+
+                                            <span class="profile-menu-icon">
+                                                📦
+                                            </span>
+
+                                            <div class="profile-menu-text">
+
+                                                <strong>
+                                                    Orders
+                                                </strong>
+
+                                                <small>
+                                                    Track your purchases
+                                                </small>
+
+                                            </div>
+
+                                        </a>
+
+                                    </li>
+
+
+                                    <!-- MY CART -->
+
+                                    <li>
+
+                                        <a class="dropdown-item profile-menu-item"
+                                           asp-page="/Cart/Index">
+
+                                            <span class="profile-menu-icon">
+                                                🛒
+                                            </span>
+
+                                            <div class="profile-menu-text">
+
+                                                <strong>
+                                                    My Cart
+                                                </strong>
+
+                                                <small>
+                                                    Review your cart
+                                                </small>
+
+                                            </div>
+
+                                        </a>
+
+                                    </li>
+
+
+                                    <!-- DIVIDER -->
 
                                     <li>
                                         <hr class="dropdown-divider" />
                                     </li>
 
+
+                                    <!-- LOGOUT -->
+
                                     <li>
+
                                         <form method="post"
-                                              asp-page="/Account/Logout">
+                                              asp-page="/Account/Logout"
+                                              class="m-0">
 
                                             <button type="submit"
-                                                    class="dropdown-item">
-                                                Logout
+                                                    class="dropdown-item profile-menu-item profile-logout">
+
+                                                <span class="profile-menu-icon">
+                                                    ↪
+                                                </span>
+
+                                                <div class="profile-menu-text">
+
+                                                    <strong>
+                                                        Logout
+                                                    </strong>
+
+                                                    <small>
+                                                        Sign out of BookLover
+                                                    </small>
+
+                                                </div>
+
                                             </button>
 
                                         </form>
+
                                     </li>
 
                                 </ul>
@@ -128,18 +374,31 @@
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-page="/Account/Login">
-                                    SignIn
-                                </a>
-                            </li>
+                            <!-- SIGN IN -->
 
                             <li class="nav-item">
-                                <a class="btn btn-dark ms-lg-2"
-                                   asp-page="/Account/Register">
-                                    Register
+
+                                <a class="nav-link"
+                                   asp-page="/Account/Login">
+
+                                    Sign In
+
                                 </a>
+
+                            </li>
+
+
+                            <!-- REGISTER -->
+
+                            <li class="nav-item">
+
+                                <a class="btn btn-dark ms-lg-2 nav-register-button"
+                                   asp-page="/Account/Register">
+
+                                    Register
+
+                                </a>
+
                             </li>
                         }
 
@@ -150,31 +409,141 @@
             </div>
 
         </nav>
+
     </header>
 
 
+
+    <!-- =========================================
+         PAGE CONTENT
+    ========================================== -->
+
     <main>
+
         @RenderBody()
+
     </main>
 
 
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
     <footer class="border-top mt-5">
+
         <div class="container py-4 text-muted">
+
             &copy; 2026 BookLoverECommerce
+
         </div>
+
     </footer>
 
 
+
+    <!-- =========================================
+         GLOBAL SUCCESS TOAST
+    ========================================== -->
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div id="cartToast"
+             class="cart-toast">
+
+            <div class="cart-toast-icon">
+                ✓
+            </div>
+
+
+            <div class="cart-toast-content">
+
+                <strong>
+                    Success
+                </strong>
+
+                <span>
+                    @successMessage
+                </span>
+
+
+            </div>
+
+
+            <button type="button"
+                    class="cart-toast-close"
+                    onclick="closeCartToast()"
+                    aria-label="Close notification">
+
+                ×
+
+            </button>
+
+        </div>
+    }
+
+
+
+    <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
+
     <script src="~/js/site.js"
-            asp-append-version="true"></script>
+            asp-append-version="true">
+    </script>
+
+
+    <script>
+
+        function closeCartToast() {
+
+            const toast =
+                document.getElementById(
+                    "cartToast");
+
+            if (!toast) {
+                return;
+            }
+
+            toast.classList.add(
+                "cart-toast-hide");
+
+            setTimeout(() => {
+
+                toast.remove();
+
+            }, 250);
+        }
+
+
+        const cartToast =
+            document.getElementById(
+                "cartToast");
+
+
+        if (cartToast) {
+
+            setTimeout(() => {
+
+                closeCartToast();
+
+            }, 5000);
+        }
+
+    </script>
+
 
     @await RenderSectionAsync(
         "Scripts",
         required: false)
 
+
 </body>
+
 </html>

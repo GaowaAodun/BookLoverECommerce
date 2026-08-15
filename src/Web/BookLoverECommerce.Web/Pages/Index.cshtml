@@ -66,29 +66,61 @@
 
         <div class="category-grid">
 
-            <a class="category-card" href="#">
-                <span>📖</span>
-                <h3>Fiction</h3>
-                <p>Explore stories and novels</p>
-            </a>
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Fiction">
 
-            <a class="category-card" href="#">
-                <span>💻</span>
-                <h3>Technology</h3>
-                <p>Programming and innovation</p>
-            </a>
+    <span>📖</span>
 
-            <a class="category-card" href="#">
-                <span>📈</span>
-                <h3>Business</h3>
-                <p>Ideas for growth</p>
-            </a>
+    <h3>Fiction</h3>
 
-            <a class="category-card" href="#">
-                <span>🌱</span>
-                <h3>Self Development</h3>
-                <p>Become your best self</p>
-            </a>
+    <p>
+        Explore stories and novels
+    </p>
+
+</a>
+
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Technology">
+
+    <span>💻</span>
+
+    <h3>Technology</h3>
+
+    <p>
+        Programming and innovation
+    </p>
+
+</a>
+
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Business">
+
+    <span>📈</span>
+
+    <h3>Business</h3>
+
+    <p>
+        Ideas for growth
+    </p>
+
+</a>
+
+            <a class="category-card"
+   asp-page="/Products/Index"
+   asp-route-category="Self Development">
+
+    <span>🌱</span>
+
+    <h3>Self Development</h3>
+
+    <p>
+        Personal growth and better habits
+    </p>
+
+</a>
 
         </div>
 
@@ -97,188 +129,169 @@
 
 
 <!-- RECOMMENDED BOOKS -->
-<section class="products-section"
-         id="recommended">
+<section class="home-products-section">
 
     <div class="container">
 
-        <div class="section-heading">
+        <div class="home-products-heading">
+
             <div>
                 <span class="section-label">
                     FOR YOU
                 </span>
 
-                <h2>Recommended Books</h2>
+                <h2>
+                    Recommended Books
+                </h2>
+
+                <p>
+                    Discover popular products from our current collection.
+                </p>
             </div>
 
-            <a asp-page="/Products/Index">
-                See all books
+            <a asp-page="/Products/Index"
+               class="view-all-link">
+                See all products →
             </a>
-        </div>
-
-
-        <div class="book-grid">
-
-            <!-- BOOK 1 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-
-                    <div class="book-badge">
-                        Bestseller
-                    </div>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Technology
-                    </span>
-
-                    <h3>Clean Code</h3>
-
-                    <p class="author">
-                        Robert C. Martin
-                    </p>
-
-                    <div class="rating">
-                        ★★★★★
-                        <span>4.8</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$32.99</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- BOOK 2 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Fiction
-                    </span>
-
-                    <h3>The Midnight Library</h3>
-
-                    <p class="author">
-                        Matt Haig
-                    </p>
-
-                    <div class="rating">
-                        ★★★★☆
-                        <span>4.5</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$21.99</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- BOOK 3 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Business
-                    </span>
-
-                    <h3>Atomic Habits</h3>
-
-                    <p class="author">
-                        James Clear
-                    </p>
-
-                    <div class="rating">
-                        ★★★★★
-                        <span>4.9</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$24.50</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- BOOK 4 -->
-            <div class="book-card">
-
-                <div class="book-image-placeholder">
-                    <span>Book Cover</span>
-                </div>
-
-                <div class="book-info">
-
-                    <span class="book-category">
-                        Technology
-                    </span>
-
-                    <h3>Design Patterns</h3>
-
-                    <p class="author">
-                        Erich Gamma
-                    </p>
-
-                    <div class="rating">
-                        ★★★★☆
-                        <span>4.6</span>
-                    </div>
-
-                    <div class="book-footer">
-
-                        <strong>$44.99</strong>
-
-                        <button class="cart-button">
-                            Add to Cart
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
 
         </div>
+
+
+        @if (Model.RecommendedProducts.Count == 0)
+        {
+            <div class="home-products-empty">
+                Products will appear here when they become available.
+            </div>
+        }
+        else
+        {
+            <div class="home-products-grid">
+
+                @foreach (var product in Model.RecommendedProducts)
+                {
+                    <article class="home-product-card">
+
+                        <!-- IMAGE -->
+                        <a asp-page="/Products/Details"
+                           asp-route-id="@product.Id"
+                           class="home-product-image">
+
+                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl"
+                                     alt="@product.Title" />
+                            }
+                            else
+                            {
+                                <div class="home-product-placeholder">
+
+                                    <span>📖</span>
+
+                                    <small>
+                                        @product.Category
+                                    </small>
+
+                                </div>
+                            }
+
+                        </a>
+
+
+                        <!-- INFORMATION -->
+                        <div class="home-product-content">
+
+                            @if (!string.IsNullOrWhiteSpace(product.Category))
+                            {
+                                <span class="home-product-category">
+                                    @product.Category
+                                </span>
+                            }
+
+
+                            <h3>
+                                <a asp-page="/Products/Details"
+                                   asp-route-id="@product.Id">
+
+                                    @product.Title
+
+                                </a>
+                            </h3>
+
+
+                            @if (!string.IsNullOrWhiteSpace(product.Author))
+                            {
+                                <p class="home-product-author">
+                                    by @product.Author
+                                </p>
+                            }
+
+
+                            @if (!string.IsNullOrWhiteSpace(product.Description))
+                            {
+                                <p class="home-product-description">
+                                    @product.Description
+                                </p>
+                            }
+
+
+                            <div class="home-product-footer">
+
+                                <div class="home-product-price">
+                                    @product.Price.ToString("C")
+                                </div>
+
+
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <form method="post"
+                                          asp-page="/Cart/Index"
+                                          asp-page-handler="Add">
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@product.Id" />
+
+                                        <input type="hidden"
+                                               name="quantity"
+                                               value="1" />
+
+                                        <input type="hidden"
+                                               name="returnUrl"
+                                               value="@Request.Path" />
+
+                                        <button type="submit"
+                                                class="home-add-cart-button">
+
+                                            Add to Cart
+
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a asp-page="/Account/Login"
+                                       asp-route-returnUrl="@Request.Path"
+                                       class="home-add-cart-button">
+
+                                        Login to Add
+
+                                    </a>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
 
     </div>
-</section>
 
+</section>
 
 <!-- PROMOTIONAL AD -->
 <section class="promo-section">
@@ -336,93 +349,63 @@
 
 
         <form method="get"
-              asp-page="/Products/Index"
-              class="advanced-search">
+      asp-page="/Products/Index"
+      class="advanced-search">
 
-            <div class="search-field">
+    <div class="search-field">
 
-                <label>
-                    Search by name
-                </label>
+        <label>
+            Search books
+        </label>
 
-                <input type="text"
-                       name="search"
-                       class="form-control"
-                       placeholder="Book title, author..." />
+        <input type="text"
+               name="search"
+               class="form-control"
+               placeholder="Book title or author..." />
 
-            </div>
-
-
-            <div class="search-field">
-
-                <label>
-                    Minimum rating
-                </label>
-
-                <select name="rating"
-                        class="form-select">
-
-                    <option value="">
-                        Any rating
-                    </option>
-
-                    <option value="5">
-                        5 stars
-                    </option>
-
-                    <option value="4">
-                        4 stars & above
-                    </option>
-
-                    <option value="3">
-                        3 stars & above
-                    </option>
-
-                </select>
-
-            </div>
+    </div>
 
 
-            <div class="search-field">
+    <div class="search-field">
 
-                <label>
-                    Sort price
-                </label>
+        <label>
+            Sort by
+        </label>
 
-                <select name="sort"
-                        class="form-select">
+        <select name="sort"
+                class="form-select">
 
-                    <option value="">
-                        Default
-                    </option>
+            <option value="">
+                Featured
+            </option>
 
-                    <option value="price_asc">
-                        Price: Low to High
-                    </option>
+            <option value="name_asc">
+                Name: A - Z
+            </option>
 
-                    <option value="price_desc">
-                        Price: High to Low
-                    </option>
+            <option value="price_asc">
+                Price: Low to High
+            </option>
 
-                    <option value="rating_desc">
-                        Highest Rated
-                    </option>
+            <option value="price_desc">
+                Price: High to Low
+            </option>
 
-                </select>
+        </select>
 
-            </div>
+    </div>
 
 
-            <div class="search-button-container">
+    <div class="search-button-container">
 
-                <button type="submit"
-                        class="btn btn-dark">
-                    Search Books
-                </button>
+        <button type="submit"
+                class="btn btn-dark">
+            Search Books
+        </button>
 
-            </div>
+    </div>
 
-        </form>
+</form>
 
     </div>
 
